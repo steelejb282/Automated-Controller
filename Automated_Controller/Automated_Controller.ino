@@ -318,18 +318,22 @@ void gameMenu(int call) {
   int sel;
 
   int buff    = standBuff;
-  int scrOpen = headerSize + 2 * screenBuff - buff;
+  int scrOpen = headerSize + 2 * screenBuff - buff + 210;
 
   // Prepare the pushButton structure
   tools.clearButtonList();
 
   pushButton button;
 
-  button.text.add(" Z");
-  button.text.add(" O. Ruby / A. Sapphire");
-  button.text.add(" X / Y");
+  button.text.add(" Sun");
+  button.text.add(" Moon");
+  button.text.add(" O.Ruby");
+  button.text.add(" A.Sapphire");
+  button.text.add(" X");
+  button.text.add(" Y");
   button.text.add(" Yellow");
-  button.text.add(" Red / Blue");
+  button.text.add(" Red");
+  button.text.add(" Blue");
   if (call == 2) {
     button.text.add("Save");
     button.text.add("Exit");
@@ -363,11 +367,42 @@ void gameMenu(int call) {
     button.font.add(SMALL);
     button.textSize.add(strlen(button.text.get(i)));
     button.textPos.add(MID_LEFT);
-
-    scrOpen += (button.sizeY.get(i) + buff);
   }
 
   // Complex initializations
+
+  // Sun / Moon
+  button.sizeX.set(0, floor((TFT_X - 2 * (innerBuff + outerBuff) - 4) / 2) - 1);  // Sun
+  button.sizeX.set(1, floor((TFT_X - 2 * (innerBuff + outerBuff) - 4) / 2));      // Moon
+  button.posX.set(1, floor(TFT_X / 2) + 1);
+  button.posY.set(0, 34);
+  button.posY.set(1, 34);
+
+  // O. Ruby / A. Sapphire
+  button.sizeX.set(2, floor((TFT_X - 2 * (innerBuff + outerBuff) - 4) / 2) - 1);  // O. Ruby
+  button.sizeX.set(3, floor((TFT_X - 2 * (innerBuff + outerBuff) - 4) / 2));      // A. Sapphire
+  button.posX.set(3, floor(TFT_X / 2) + 1);
+  button.posY.set(2, 69);
+  button.posY.set(3, 69);
+
+  // X / Y
+  button.sizeX.set(4, floor((TFT_X - 2 * (innerBuff + outerBuff) - 4) / 2) - 1);  // X
+  button.sizeX.set(5, floor((TFT_X - 2 * (innerBuff + outerBuff) - 4) / 2));      // Y
+  button.posX.set(5, floor(TFT_X / 2) + 1);
+  button.posY.set(4, 104);
+  button.posY.set(5, 104);
+
+  // Yellow
+  button.posY.set(6, 139);
+
+  // Red / Blue
+  button.sizeX.set(7, floor((TFT_X - 2 * (innerBuff + outerBuff) - 4) / 2) - 1);  // Red
+  button.sizeX.set(8, floor((TFT_X - 2 * (innerBuff + outerBuff) - 4) / 2));      // Blue
+  button.posX.set(8, floor(TFT_X / 2) + 1);
+  button.posY.set(7, 174);
+  button.posY.set(8, 174);
+
+  button.posY.set(9, 209);
 
   if (call == 2) {
     button.sizeX.set(button.arrSize - 2, floor((TFT_X - 2 * (innerBuff + outerBuff) - 4) / 2) - 1);
@@ -378,8 +413,6 @@ void gameMenu(int call) {
     button.state.set(button.arrSize - 1, LIVE);
     button.textPos.set(button.arrSize - 2, MID_CENTER);
     button.textPos.set(button.arrSize - 1, MID_CENTER);
-
-    scrOpen -= (button.sizeY.get(0) + buff);
   }
   else {
     button.state.set(button.arrSize - 1, LIVE);
@@ -438,11 +471,11 @@ void gameMenu(int call) {
 
         switch (sel) {
 
-          case 5:
+          case 9:
             sd.GameList(GameSelect, button.arrSize - 1, WRITE);
             mainMenu();
             break;
-          case 6:    // Exit -> settingMenu
+          case 10:    // Exit -> settingMenu
             settingMenu();
             break;
         }
@@ -469,17 +502,25 @@ void gameMenu(int call) {
 
       switch (sel) {
 
-        case 0:       // Z
+        case 0:       // Sun
           break;
-        case 1:       // ORAS
+        case 1:       // Moon
           break;
-        case 2:       // XY
+        case 2:       // Omega Ruby
           break;
-        case 3:       // Y
+        case 3:       // Alpha Sapphire
           break;
-        case 4:       // RB
+        case 4:       // X
           break;
-        case 5:       // Exit
+        case 5:       // Y
+          break;
+        case 6:       // Yellow
+          break;
+        case 7:       // Red
+          break;
+        case 8:       // Blue
+          break;
+        case 9:
           switch (call) {
 
             case 0:   // Routine -> mainMenu
