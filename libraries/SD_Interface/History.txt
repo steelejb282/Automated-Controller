@@ -1,0 +1,27 @@
+SD_Interface created 17 Jan, 2016
+
+17 Jan, 2016
+
+SD_Interface added
+pokedexRead added
+abilityRead added
+abilityWrite added
+infoWrite added
+Masuda added
+
+Pokedex defined as 721
+
+
+11 Feb, 2016
+
+pokemonInfoRead added
+
+Notes added for necessary updates to pokedexRead
+Notes added for functions to be written
+
+Clearly defined function categories and organization
+
+
+16 Feb, 2016
+
+ShellDisplay added

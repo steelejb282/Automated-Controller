@@ -1,0 +1,7 @@
+Database					Last Update					Game Era
+
+Pokedex					5 Nov 2015					ORAS
+Ability					15 Nov 2015					ORAS
+Attack					20 Feb 2016					ORAS
+Item						20 Feb 2016					ORAS
+Nature					20 Feb 2016					ORAS
