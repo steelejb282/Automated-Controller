@@ -76,6 +76,28 @@ typedef struct{
     byte                arrSize;
 } pushButton;
 
+typedef struct{
+    LinkedList<char*>   textLow;
+    LinkedList<char*>   textHigh;
+    
+    LinkedList<int>     posX;
+    LinkedList<int>     posY;
+    LinkedList<int>     sizeX;
+    LinkedList<int>     sizeY;
+    
+    LinkedList<int>     state;
+    LinkedList<int>     font;
+    LinkedList<int>     textSize;
+    LinkedList<int>     textPos;
+    
+    byte                arrSize;
+    byte                caps;
+    byte                shift;
+    
+    int                 anchorX;
+    int                 anchorY;
+} keyboard;
+
 extern uint8_t SmallFont[];
 extern uint8_t BigFont[];
 
@@ -87,12 +109,12 @@ public:
     int getX();
     int getY();
     void clearButtonList();
+    keyboard initKeyboard(int anchorX,int anchorY);
     
     // Menu Interfacing
     
     void initMenuSetup(int size);
     void displayColor(pushButton* info,int values[]);
-    //void displayColor(int pos[][2],int size[][2],int values[]);
     
     // Header and Transition control
     void    header();
@@ -101,25 +123,6 @@ public:
     // Button Control
     void    writeButton(pushButton* info);
     void    writeButtonPress(int posX,int posY,int sizeX,int sizeY,int Press);
-    
-    // UTFT Control
-    void setFont(int size);
-    void setColor(int r,int g,int b);
-    void setColor(word Color);
-    void setBackColor(int r,int g,int b);
-    void setBackColor(word Color);
-    void fillScr(int r,int g,int b);
-    void fillScr(word Color);
-    void drawPixel(int x,int y);
-    void drawLine(int x1,int y1,int x2,int y2);
-    void drawRect(int x1,int y1,int x2,int y2);
-    void drawRoundRect(int x1,int y1,int x2,int y2);
-    void drawCircle(int x,int y,int r);
-    void fillRect(int x1,int y1,int x2,int y2);
-    void fillRoundRect(int x1,int y1,int x2,int y2);
-    void fillCircle(int x,int y,int r);
-    void print(char* str,int x,int y);
-    void printInt(int num,int x,int y);
     
 private:
     

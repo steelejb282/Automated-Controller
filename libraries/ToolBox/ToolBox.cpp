@@ -32,6 +32,137 @@ void ToolBox::clearButtonList(){
     button.textPos.clear();
 }
 
+keyboard initKeyboard(int anchorX,int anchorY){
+    
+    keyboard keys;
+    
+    keys.textLow.add(" Caps");
+    keys.textLow.add("Shift");
+    keys.textLow.add("Del ");
+    keys.textLow.add("0");
+    keys.textLow.add("1");
+    keys.textLow.add("2");
+    keys.textLow.add("3");
+    keys.textLow.add("4");
+    keys.textLow.add("5");
+    keys.textLow.add("6");
+    keys.textLow.add("7");
+    keys.textLow.add("8");
+    keys.textLow.add("9");
+    keys.textLow.add("a");
+    keys.textLow.add("b");
+    keys.textLow.add("c");
+    keys.textLow.add("d");
+    keys.textLow.add("e");
+    keys.textLow.add("f");
+    keys.textLow.add("g");
+    keys.textLow.add("h");
+    keys.textLow.add("i");
+    keys.textLow.add("j");
+    keys.textLow.add("k");
+    keys.textLow.add("l");
+    keys.textLow.add("m");
+    keys.textLow.add("n");
+    keys.textLow.add("o");
+    keys.textLow.add("p");
+    keys.textLow.add("q");
+    keys.textLow.add("r");
+    keys.textLow.add("s");
+    keys.textLow.add("t");
+    keys.textLow.add("u");
+    keys.textLow.add("v");
+    keys.textLow.add("w");
+    keys.textLow.add("x");
+    keys.textLow.add("y");
+    keys.textLow.add("z");
+    keys.textLow.add(".");
+    keys.textLow.add(",");
+    keys.textLow.add("-");
+    keys.textLow.add("'");
+    
+    keys.textHigh.add(" Caps");
+    keys.textHigh.add("Shift");
+    keys.textHigh.add("Del ");
+    keys.textHigh.add("0");
+    keys.textHigh.add("1");
+    keys.textHigh.add("2");
+    keys.textHigh.add("3");
+    keys.textHigh.add("4");
+    keys.textHigh.add("5");
+    keys.textHigh.add("6");
+    keys.textHigh.add("7");
+    keys.textHigh.add("8");
+    keys.textHigh.add("9");
+    keys.textHigh.add("A");
+    keys.textHigh.add("B");
+    keys.textHigh.add("C");
+    keys.textHigh.add("D");
+    keys.textHigh.add("E");
+    keys.textHigh.add("F");
+    keys.textHigh.add("G");
+    keys.textHigh.add("H");
+    keys.textHigh.add("I");
+    keys.textHigh.add("J");
+    keys.textHigh.add("K");
+    keys.textHigh.add("L");
+    keys.textHigh.add("M");
+    keys.textHigh.add("N");
+    keys.textHigh.add("O");
+    keys.textHigh.add("P");
+    keys.textHigh.add("Q");
+    keys.textHigh.add("R");
+    keys.textHigh.add("S");
+    keys.textHigh.add("T");
+    keys.textHigh.add("U");
+    keys.textHigh.add("V");
+    keys.textHigh.add("W");
+    keys.textHigh.add("X");
+    keys.textHigh.add("Y");
+    keys.textHigh.add("Z");
+    keys.textHigh.add(".");
+    keys.textHigh.add(",");
+    keys.textHigh.add("-");
+    keys.textHigh.add("'");
+    
+    keys.arrSize    = keys.textLow.size();
+    keys.shift      = 0;
+    keys.caps       = 0;
+    keys.anchorX    = anchorX;
+    keys.anchorY    = anchorY;
+    
+    for (i = 0; i < keys.arrSize; i++) {
+        
+        keys.sizeX.add(20);
+        keys.sizeY.add(20);
+        keys.state.add(LIVE);
+        keys.font.add(SMALL);
+        keys.textSize.add(strlen(keys.textLow.get(i)));
+        keys.textPos.add(MID_CENTER);
+    }
+    
+    keys.sizeX.set(0, (TFT_X-2*keys.anchorX)/3);
+    keys.sizeX.set(1, (TFT_X-2*keys.anchorX)/3);
+    keys.sizeX.set(2, (TFT_X-2*keys.anchorX)/3);
+    keys.posX.add(keys.anchorX);
+    keys.posX.add(keys.posX.get(0)+keys.sizeX.get(0));
+    keys.posX.add(keys.posX.get(1)+keys.sizeX.get(1));
+    keys.posY.add(keys.anchorY);
+    keys.posY.add(keys.anchorY);
+    keys.posY.add(keys.anchorY);
+    
+    keys.textPos.set(0, MID_LEFT);
+    keys.textPos.set(2, MID_RIGHT);
+    
+    for (i = 0; i < 4; i++) {
+        
+        for (j = 0; j < 10; j++) {
+            
+            keys.posX.add(AnchorX + j * 21);
+            keys.posY.add(AnchorY + 10 + i * 21);
+        }
+    }
+}
+
 //
 // MENU INTERFACING
 //
@@ -362,91 +493,4 @@ void ToolBox::writeButtonPress(int posX,int posY,int sizeX,int sizeY,int Press) 
     myGLCD.drawLine(posX + sizeX - 1, posY + 1, posX + sizeX - 1, posY + sizeY - 2);
  
     myGLCD.drawRect(posX + 1, posY + 1, posX + sizeX - 2, posY + sizeY - 2);
-}
-
-//
-// UTFT CONTROL
-//
-// The UTFT Control functions are designed to place all of the UTFT Library utilties in the tool
-// box.  This prevents the need for the library from needed to be called further, and allows it to
-// be used in other libraries.
-//
-// To Add:
-// LCD on/off, Contrast, Brightness, Bitmap
-
-void ToolBox::setFont(int size){
- 
-    switch (size){
- 
-        case SMALL:
-            myGLCD.setFont(SmallFont);
-            break;
-        case LARGE:
-            myGLCD.setFont(BigFont);
-            break;
-    }
-}
-void ToolBox::setColor(int r,int g,int b){
-    
-    myGLCD.setColor(r,g,b);
-}
-void ToolBox::setColor(word Color){
-    
-    myGLCD.setColor(Color);
-}
-void ToolBox::setBackColor(int r,int g,int b){
-    
-    myGLCD.setBackColor(r,g,b);
-}
-void ToolBox::setBackColor(word Color){
-    
-    myGLCD.setBackColor(Color);
-}
-void ToolBox::fillScr(int r,int g,int b){
-    
-    myGLCD.fillScr(r,g,b);
-}
-void ToolBox::fillScr(word Color){
-    
-    myGLCD.fillScr(Color);
-}
-void ToolBox::drawPixel(int x,int y){
-    
-    myGLCD.drawPixel(x,y);
-}
-void ToolBox::drawLine(int x1,int y1,int x2,int y2){
-    
-    myGLCD.drawLine(x1,y1,x2,y2);
-}
-void ToolBox::drawRect(int x1,int y1,int x2,int y2){
-    
-    myGLCD.drawRect(x1,y1,x2,y2);
-}
-void ToolBox::drawRoundRect(int x1,int y1,int x2,int y2){
-    
-    myGLCD.drawRoundRect(x1,y1,x2,y2);
-}
-void ToolBox::drawCircle(int x,int y,int r){
-    
-    myGLCD.drawCircle(x,y,r);
-}
-void ToolBox::fillRect(int x1,int y1,int x2,int y2){
-    
-    myGLCD.fillRect(x1,y1,x2,y2);
-}
-void ToolBox::fillRoundRect(int x1,int y1,int x2,int y2){
-    
-    myGLCD.fillRoundRect(x1,y1,x2,y2);
-}
-void ToolBox::fillCircle(int x,int y,int r){
-    
-    myGLCD.fillCircle(x,y,r);
-}
-void ToolBox::print(char* str,int x,int y){
-    
-    myGLCD.print(str,x,y);
-}
-void ToolBox::printInt(int num,int x,int y){
-    
-    myGLCD.printNumI(num,x,y);
 }

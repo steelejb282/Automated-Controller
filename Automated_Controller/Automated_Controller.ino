@@ -44,13 +44,108 @@ void setup() {
 
 void loop() {
 
-  initMenu();
+  //initMenu();
 
-  sd.Test("3");
+  //sd.Test("3");
 
-  Serial.print("Done");
+  nameSearch();
 
   while (1);
+}
+
+void nameSearch() {
+
+  int scrOpen = 124;
+
+  pushButton  button;
+//  keyboard    keys = tools.initKeyboard(14,34);
+/*
+  button.text.add(" Caps");
+  button.text.add("Shift");
+  button.text.add("Del ");
+  button.text.add("0");
+  button.text.add("1");
+  button.text.add("2");
+  button.text.add("3");
+  button.text.add("4");
+  button.text.add("5");
+  button.text.add("6");
+  button.text.add("7");
+  button.text.add("8");
+  button.text.add("9");
+  button.text.add("a");
+  button.text.add("b");
+  button.text.add("c");
+  button.text.add("d");
+  button.text.add("e");
+  button.text.add("f");
+  button.text.add("g");
+  button.text.add("h");
+  button.text.add("i");
+  button.text.add("j");
+  button.text.add("k");
+  button.text.add("l");
+  button.text.add("m");
+  button.text.add("n");
+  button.text.add("o");
+  button.text.add("p");
+  button.text.add("q");
+  button.text.add("r");
+  button.text.add("s");
+  button.text.add("t");
+  button.text.add("u");
+  button.text.add("v");
+  button.text.add("w");
+  button.text.add("x");
+  button.text.add("y");
+  button.text.add("z");
+  button.text.add(".");
+  button.text.add(",");
+  button.text.add("-");
+  button.text.add("'");
+
+  for (i = 0; i < button.text.size(); i++) {
+
+    button.sizeX.add(20);
+    button.sizeY.add(20);
+    button.state.add(LIVE);
+    button.font.add(SMALL);
+    button.textSize.add(strlen(button.text.get(i)));
+    button.textPos.add(MID_CENTER);
+  }
+
+  button.sizeX.set(0, 70);
+  button.sizeX.set(1, 70);
+  button.sizeX.set(2, 70);
+  button.posX.add(14);
+  button.posX.add(84);
+  button.posX.add(154);
+  button.posY.add(24);
+  button.posY.add(24);
+  button.posY.add(24);
+  button.textPos.set(0, MID_LEFT);
+  button.textPos.set(2, MID_RIGHT);
+
+  for (i = 0; i < 4; i++) {
+
+    for (j = 0; j < 10; j++) {
+
+      button.posX.add(14 + j * 21);
+      button.posY.add(44 + i * 21);
+    }
+  }*/
+
+  tools.footer(scrOpen - 5, OPEN);
+  tools.initMenuSetup(scrOpen);
+
+  tools.writeButton(&button);
+
+  while(1);
+}
+
+void initBox() {
+
+
 }
 
 void initMenu() {
