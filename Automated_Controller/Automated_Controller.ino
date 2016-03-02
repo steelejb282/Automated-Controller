@@ -55,93 +55,169 @@ void loop() {
 
 void nameSearch() {
 
-  int scrOpen = 124;
+  int scrOpen   = 279;
+  int sel;
+  int capType   = 0;
+  int holdCap   = 1;
+  int holdShift = 1;
+  int X         = 14;
+  int Y         = 164;
+  int cnt       = 0;
+
+  char* Name[11];
+  char* NAME[11];
+  char* Search[11][4];
+
+  GLCD.setBackColor(VGA_SCR_BACK);
+  GLCD.setFont(SmallFont);
 
   pushButton  button;
-//  keyboard    keys = tools.initKeyboard(14,34);
-/*
-  button.text.add(" Caps");
-  button.text.add("Shift");
-  button.text.add("Del ");
-  button.text.add("0");
-  button.text.add("1");
-  button.text.add("2");
-  button.text.add("3");
-  button.text.add("4");
-  button.text.add("5");
-  button.text.add("6");
-  button.text.add("7");
-  button.text.add("8");
-  button.text.add("9");
-  button.text.add("a");
-  button.text.add("b");
-  button.text.add("c");
-  button.text.add("d");
-  button.text.add("e");
-  button.text.add("f");
-  button.text.add("g");
-  button.text.add("h");
-  button.text.add("i");
-  button.text.add("j");
-  button.text.add("k");
-  button.text.add("l");
-  button.text.add("m");
-  button.text.add("n");
-  button.text.add("o");
-  button.text.add("p");
-  button.text.add("q");
-  button.text.add("r");
-  button.text.add("s");
-  button.text.add("t");
-  button.text.add("u");
-  button.text.add("v");
-  button.text.add("w");
-  button.text.add("x");
-  button.text.add("y");
-  button.text.add("z");
-  button.text.add(".");
-  button.text.add(",");
-  button.text.add("-");
-  button.text.add("'");
+  keyboard    keys = tools.initKeyboard(X, Y);
 
-  for (i = 0; i < button.text.size(); i++) {
+  button.arrSize = keys.arrSize;
 
-    button.sizeX.add(20);
-    button.sizeY.add(20);
-    button.state.add(LIVE);
-    button.font.add(SMALL);
-    button.textSize.add(strlen(button.text.get(i)));
-    button.textPos.add(MID_CENTER);
+  for (i = 0; i < button.arrSize; i++) {
+
+    button.text.add(keys.textHigh.get(i));
+    button.posX.add(keys.posX.get(i));
+    button.posY.add(keys.posY.get(i));
+    button.sizeX.add(keys.sizeX.get(i));
+    button.sizeY.add(keys.sizeY.get(i));
+    button.state.add(keys.state.get(i));
+    button.font.add(keys.font.get(i));
+    button.textSize.add(keys.textSize.get(i));
+    button.textPos.add(keys.textPos.get(i));
   }
-
-  button.sizeX.set(0, 70);
-  button.sizeX.set(1, 70);
-  button.sizeX.set(2, 70);
-  button.posX.add(14);
-  button.posX.add(84);
-  button.posX.add(154);
-  button.posY.add(24);
-  button.posY.add(24);
-  button.posY.add(24);
-  button.textPos.set(0, MID_LEFT);
-  button.textPos.set(2, MID_RIGHT);
-
-  for (i = 0; i < 4; i++) {
-
-    for (j = 0; j < 10; j++) {
-
-      button.posX.add(14 + j * 21);
-      button.posY.add(44 + i * 21);
-    }
-  }*/
 
   tools.footer(scrOpen - 5, OPEN);
   tools.initMenuSetup(scrOpen);
 
+  GLCD.setColor(VGA_SCR_BACK);
+  GLCD.fillRect(X, Y - 25, X + 210, Y - 5);
+
   tools.writeButton(&button);
 
-  while(1);
+  while (1) {
+
+    sel = readButton(&button);
+
+    delay(200);
+
+    if (keys.shift && sel > 3) {
+
+      if (holdShift) {
+        holdShift = 2;
+      }
+      else {
+        keys.shift = 0;
+      }
+    }
+
+    if (sel == 1) {
+
+      keys.shift = 0;
+      keys.caps = !keys.caps;
+    }
+    else if (sel == 2) {
+
+      keys.shift = !keys.shift;
+      keys.caps = 0;
+    }
+
+    if (keys.caps || keys.shift) {
+
+      holdCap = 1;
+
+      for (i = 0; i < button.arrSize; i++) {
+
+        button.text.set(i, keys.textHigh.get(i));
+      }
+
+      tools.writeButton(&button);
+    }
+    else if (holdCap && !keys.shift && !keys.caps) {
+
+      holdCap = 0;
+
+      for (i = 0; i < button.arrSize; i++) {
+
+        button.text.set(i, keys.textLow.get(i));
+      }
+
+      tools.writeButton(&button);
+    }
+
+    if (sel > 3 && cnt < 11) {
+
+      /*if (!keys.shift && !keys.caps){
+
+          if (sel > 13 && sel < 40){
+
+              
+          }
+          else{
+
+              NAME[cnt] = button.text.get(sel);
+          }
+      }
+      else{
+
+          NAME[cnt] = button.text.get(sel);
+      }*/
+
+      Name[cnt] = button.text.get(sel);
+      NAME[cnt] = keys.textHigh.get(sel);
+      cnt++;
+
+      GLCD.setColor(VGA_SCR_BACK);
+      GLCD.fillRect(X, Y - 25, X + 210, Y - 5);
+      GLCD.setColor(VGA_BLACK);
+
+      for (i = 0; i < cnt; i++) {
+
+        GLCD.print(Name[i], X + 5 + 8 * i, Y - 21);
+      }
+    }
+    else if (sel == 3 && cnt <= 11) {
+
+      cnt--;
+      Name[cnt] = NULL;
+      NAME[cnt] = NULL;
+
+      GLCD.setColor(VGA_SCR_BACK);
+      GLCD.fillRect(X, Y - 25, X + 210, Y - 5);
+      GLCD.setColor(VGA_BLACK);
+
+      for (i = 0; i < cnt; i++) {
+
+        GLCD.print(Name[i], X + 5 + 8 * i, Y - 21);
+      }
+    }
+
+    if (holdShift == 2) {
+
+      holdShift = 0;
+
+      holdCap = 0;
+
+      for (i = 0; i < button.arrSize; i++) {
+
+        button.text.set(i, keys.textLow.get(i));
+      }
+
+      tools.writeButton(&button);
+    }
+
+    if (sel == 39 || sel == 42) {
+
+      keys.shift  = 1;
+      holdShift   = 1;
+    }
+  }
+
+  sel = NULL;
 }
+
 
 void initBox() {
 

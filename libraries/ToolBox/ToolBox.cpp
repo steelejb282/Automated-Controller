@@ -32,14 +32,14 @@ void ToolBox::clearButtonList(){
     button.textPos.clear();
 }
 
-keyboard initKeyboard(int anchorX,int anchorY){
+keyboard ToolBox::initKeyboard(int anchorX,int anchorY){
     
     keyboard keys;
     
+    keys.textLow.add(" Ent");
+    keys.textLow.add(" Shft");
     keys.textLow.add(" Caps");
-    keys.textLow.add("Shift");
     keys.textLow.add("Del ");
-    keys.textLow.add("0");
     keys.textLow.add("1");
     keys.textLow.add("2");
     keys.textLow.add("3");
@@ -49,6 +49,7 @@ keyboard initKeyboard(int anchorX,int anchorY){
     keys.textLow.add("7");
     keys.textLow.add("8");
     keys.textLow.add("9");
+    keys.textLow.add("0");
     keys.textLow.add("a");
     keys.textLow.add("b");
     keys.textLow.add("c");
@@ -76,14 +77,14 @@ keyboard initKeyboard(int anchorX,int anchorY){
     keys.textLow.add("y");
     keys.textLow.add("z");
     keys.textLow.add(".");
-    keys.textLow.add(",");
-    keys.textLow.add("-");
     keys.textLow.add("'");
+    keys.textLow.add("-");
+    keys.textLow.add(" ");
     
+    keys.textHigh.add(" Ent");
+    keys.textHigh.add(" Shft");
     keys.textHigh.add(" Caps");
-    keys.textHigh.add("Shift");
     keys.textHigh.add("Del ");
-    keys.textHigh.add("0");
     keys.textHigh.add("1");
     keys.textHigh.add("2");
     keys.textHigh.add("3");
@@ -93,6 +94,7 @@ keyboard initKeyboard(int anchorX,int anchorY){
     keys.textHigh.add("7");
     keys.textHigh.add("8");
     keys.textHigh.add("9");
+    keys.textHigh.add("0");
     keys.textHigh.add("A");
     keys.textHigh.add("B");
     keys.textHigh.add("C");
@@ -119,13 +121,13 @@ keyboard initKeyboard(int anchorX,int anchorY){
     keys.textHigh.add("X");
     keys.textHigh.add("Y");
     keys.textHigh.add("Z");
-    keys.textHigh.add(".");
     keys.textHigh.add(",");
-    keys.textHigh.add("-");
-    keys.textHigh.add("'");
+    keys.textHigh.add("?");
+    keys.textHigh.add("+");
+    keys.textHigh.add(" ");
     
     keys.arrSize    = keys.textLow.size();
-    keys.shift      = 0;
+    keys.shift      = 1;
     keys.caps       = 0;
     keys.anchorX    = anchorX;
     keys.anchorY    = anchorY;
@@ -140,27 +142,34 @@ keyboard initKeyboard(int anchorX,int anchorY){
         keys.textPos.add(MID_CENTER);
     }
     
-    keys.sizeX.set(0, (TFT_X-2*keys.anchorX)/3);
-    keys.sizeX.set(1, (TFT_X-2*keys.anchorX)/3);
-    keys.sizeX.set(2, (TFT_X-2*keys.anchorX)/3);
-    keys.posX.add(keys.anchorX);
-    keys.posX.add(keys.posX.get(0)+keys.sizeX.get(0));
-    keys.posX.add(keys.posX.get(1)+keys.sizeX.get(1));
+    keys.sizeX.set(0, 51);
+    keys.sizeX.set(1, 52);
+    keys.sizeX.set(2, 51);
+    keys.sizeX.set(3, 51);
+    keys.posX.add(keys.anchorX+1);
+    keys.posX.add(keys.posX.get(0)+keys.sizeX.get(0)+1);
+    keys.posX.add(keys.posX.get(1)+keys.sizeX.get(1)+1);
+    keys.posX.add(keys.posX.get(2)+keys.sizeX.get(2)+1);
+    keys.posY.add(keys.anchorY);
     keys.posY.add(keys.anchorY);
     keys.posY.add(keys.anchorY);
     keys.posY.add(keys.anchorY);
     
     keys.textPos.set(0, MID_LEFT);
-    keys.textPos.set(2, MID_RIGHT);
+    keys.textPos.set(1, MID_LEFT);
+    keys.textPos.set(2, MID_LEFT);
+    keys.textPos.set(3, MID_RIGHT);
     
     for (i = 0; i < 4; i++) {
         
         for (j = 0; j < 10; j++) {
             
-            keys.posX.add(AnchorX + j * 21);
-            keys.posY.add(AnchorY + 10 + i * 21);
+            keys.posX.add(anchorX + j * 21);
+            keys.posY.add(anchorY + 21 + i * 21);
         }
     }
+    
+    return keys;
 }
 
 //
