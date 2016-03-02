@@ -72,10 +72,10 @@ void nameSearch() {
 
   int    tempName[11];
 
-  for (i=0;i<11;i++){
+  for (i = 0; i < 11; i++) {
 
-      tempName[i] = NULL;
-      SEARCH[i] = NULL;
+    tempName[i] = NULL;
+    SEARCH[i] = NULL;
   }
 
   GLCD.setBackColor(VGA_SCR_BACK);
@@ -166,11 +166,15 @@ void nameSearch() {
     if (sel > 3 && cnt < 11) {
 
       Name[cnt] = button.text.get(sel);
-      tempName[cnt] = sel-4;
+      tempName[cnt] = sel - 4;
       cnt++;
 
       GLCD.setColor(VGA_SCR_BACK);
       GLCD.fillRect(X, Y - 25, X + 210, Y - 5);
+      GLCD.fillRect(X, 34, X + 210, 54);
+      GLCD.fillRect(X, 59, X + 210, 79);
+      GLCD.fillRect(X, 84, X + 210, 104);
+      GLCD.fillRect(X, 109, X + 210, 129);
       GLCD.setColor(VGA_BLACK);
 
       for (i = 0; i < cnt; i++) {
@@ -178,26 +182,26 @@ void nameSearch() {
         GLCD.print(Name[i], X + 5 + 8 * i, Y - 21);
         NAME[i] = tools.KeyLayout[tempName[i]];
       }
-      
+
       sd.search(NAME, SEARCH, cnt, 0);
 
       for (i = 0; i < 11; i++) {
 
-        if (tempName[i] == NULL){
+        if (tempName[i] == NULL) {
 
-            NAME[i] = NULL;
+          NAME[i] = NULL;
         }
-        else{
-     
-            NAME[i] = tools.KeyLayout[tempName[i]];
+        else {
+
+          NAME[i] = tools.KeyLayout[tempName[i]];
         }
 
-        GLCD.print(String(SEARCH[i]),X+5+i*8,113);
+        GLCD.print(String(SEARCH[i]), X + 5 + i * 8, 113);
       }
 
-      for (i=0;i<11;i++){
+      for (i = 0; i < 11; i++) {
 
-          SEARCH[i] = NULL;
+        SEARCH[i] = NULL;
       }
     }
     else if (sel == 3 && cnt <= 11) {
@@ -208,6 +212,10 @@ void nameSearch() {
 
       GLCD.setColor(VGA_SCR_BACK);
       GLCD.fillRect(X, Y - 25, X + 210, Y - 5);
+      GLCD.fillRect(X, 34, X + 210, 54);
+      GLCD.fillRect(X, 59, X + 210, 79);
+      GLCD.fillRect(X, 84, X + 210, 104);
+      GLCD.fillRect(X, 109, X + 210, 129);
       GLCD.setColor(VGA_BLACK);
 
       for (i = 0; i < cnt; i++) {
@@ -215,26 +223,23 @@ void nameSearch() {
         GLCD.print(Name[i], X + 5 + 8 * i, Y - 21);
 
         NAME[i] = tools.KeyLayout[tempName[i]];
-        Serial.print(NAME[i]);
       }
-      Serial.println();
 
       sd.search(NAME, SEARCH, cnt, 0);
 
       for (i = 0; i < 11; i++) {
 
-        if (tempName[i] == NULL){
+        if (tempName[i] == NULL) {
 
-            NAME[i] = NULL;
+          NAME[i] = NULL;
         }
-        else{
-     
-            NAME[i] = tools.KeyLayout[tempName[i]];
+        else {
+
+          NAME[i] = tools.KeyLayout[tempName[i]];
         }
 
-        Serial.print(SEARCH[i]);
+        GLCD.print(String(SEARCH[i]), X + 5 + i * 8, 113);
       }
-      Serial.println();
     }
 
     if (holdShift == 2) {
@@ -259,21 +264,6 @@ void nameSearch() {
   }
 
   sel = NULL;
-}
-
-void capitalize(char* Word, char* WORD, int Size) {
-
-  for (i = 0; i < Size; i++) {
-
-  if (Word[i] >= 'a' && Word[i] <= 'z') {
-
-      WORD[i] += 'A' - 'a';
-    }
-    else {
-
-      WORD[i] = Word[i];
-    }
-  }
 }
 
 void initBox() {
