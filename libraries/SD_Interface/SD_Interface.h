@@ -7,17 +7,35 @@
 #include "SPI.h"
 #include "SD.h"
 
-#define SD_CS       53
-#define Pokedex     721
-#define nullifier   -1
-#define READ        0
-#define WRITE       1
+#define SD_CS           53
+#define Pokedex         721
+#define nullifier       -1
+#define READ            0
+#define WRITE           1
 
-#define POKEDEX     "Database/Pokedex.txt"
-#define ABILITY     "Database/Ability.txt"
-#define ATTACK      "Database/Attack.txt"
-#define ITEM        "Database/Item.txt"
-#define NATURE      "Database/Nature.txt"
+#define POKEDEX_ID      0
+#define ABILITY_ID      1
+#define ATTACK_ID       2
+#define ITEM_ID         3
+#define NATURE_ID       4
+
+#define POKEDEX         "Database/Pokedex.txt"
+#define ABILITY         "Database/Ability.txt"
+#define ATTACK          "Database/Attack.txt"
+#define ITEM            "Database/Item.txt"
+#define NATURE          "Database/Nature.txt"
+
+#define POKEDEX_SIZE    23
+#define ABILITY_SIZE    17
+#define ATTACK_SIZE     19
+#define ITEM_SIZE       20
+#define NATURE_SIZE     12
+
+#define POKEDEX_NAME    11
+#define ABILITY_NAME    14
+#define ATTACK_NAME     16
+#define ITEM_NAME       16
+#define NATURE_NAME     7
 
 class SD_Interface{
     
@@ -42,7 +60,7 @@ public:
     // Database Manipulation
     //
     
-    void    search(char* Name,char* store,int pos,int skip);
+    void    search(int database,char* Name,char* store,int pos,int skip);
     
     void    pokedexRead(char* Name,int NumSel = 1);
     void    abilityRead(char ABIL_HEX_0,char ABIL_HEX_1,char* Ability);

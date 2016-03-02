@@ -205,99 +205,113 @@ void SD_Interface::GameList(int list[],int size,int type){
 // Functions designed to read and interpret the stored databases
 //
 
-void SD_Interface::search(char* Name,char* store,int pos,int skip){
+void SD_Interface::search(int databaseID,char* Name,char* store,int pos,int skip){
     
     //  Foreward...
     
     int   Cap = 1;
     int   End = 0;
     
-    int   NatNum;
-    
     char  temp;
-    
-    char  SD_POKEDEX_IMPORT[23];
     
     int   compCnt = 0;
     
-    //  SD_POKEDEX_IMPORT[23] == A[23]
-    //
-    //  a. A[0]-A[2]   = Number identification
-    //  b. A[3]        = Number of characters to retreive from A[4]-A[14]
-    //  c. A[4]-A[14]  = Pokemon's name
-    //  d. A[15]       = Gender spread identification
-    //          0:  M/F
-    //          1:  M/-
-    //          2:  -/F
-    //          3:  -/-
-    //  e. A[16]-A[17] = Primary Ability hexadecimal value
-    //  f. A[18]-A[19] = Secondary Ability hexadecimal value
-    //  g. A[20]-A[21] = Hidden Ability hexadeciaml value
-    //  h. A[22]       = Ability spread identification
-    //          0:  1/1/1
-    //          1:  1/-/1
-    //          2:  1/1/-
-    //          3:  1/-/-
-    //
-    // TO BE ADDED:
-    //
-    // For eventual use in the breeding routine, it would be useful for the program to understand
-    // the mechanics of breeding, particularly of the various types Hatched Pokemon, as well as
-    // egg group listings for compatibility testing.  Therefore,
-    //
-    // i. A[23]-A[25]   = Identifier for the base form of the mother/Ditto borne
-    // j. A[26]-A[28]   = Identifier for the base form, in the case of use of Incense
-    // k. A[29]         = Incense identifier (0 if not compatible to Incense breeding)
-    // l. A[30]         = Hexadecimal identifier for Egg Group 1 (ranging from 1-F)
-    // m. A[31]         = Hexadecimal identifier for Egg Group 2 (0 for no secondary egg group)
+    int   SD_NAME_CNT;
     
-    int   SD_POKEDEX_NAME_CNT;
+    int   start = 3;
+    int   sizeDB;
+    int   sizeName;
+    char* database;
     
-    myFile = SD.open(POKEDEX, FILE_READ);
+    switch(databaseID){
+            
+        case POKEDEX_ID:
+            database = POKEDEX;
+            sizeName = POKEDEX_NAME;
+            sizeDB = POKEDEX_SIZE;
+            start = 4;
+            break;
+        case ABILITY_ID:
+            database = ABILITY;
+            sizeName = ABILITY_NAME;
+            sizeDB = ABILITY_SIZE;
+            break;
+        case ATTACK_ID:
+            database = ATTACK;
+            sizeName = ATTACK_NAME;
+            sizeDB = ATTACK_SIZE;
+            break;
+        case ITEM_ID:
+            database = ITEM;
+            sizeName = ITEM_NAME;
+            sizeDB = ITEM_SIZE;
+            break;
+        case NATURE_ID:
+            database = NATURE;
+            sizeName = NATURE_NAME;
+            sizeDB = NATURE_SIZE;
+            break;
+    }
+    
+    char  SD_IMPORT[sizeDB];
+    
+    myFile = SD.open(database, FILE_READ);
     
     if (myFile) {
         
         while (myFile.available()) {
             
-            for (i = 0; i < 23; i++) {
+            for (i = 0; i < sizeDB; i++) {
                 
-                SD_POKEDEX_IMPORT[i] = myFile.read();
+                SD_IMPORT[i] = myFile.read();
             }
             
             for (i=0;i<pos;i++){
                 
-                if (Name[i] == SD_POKEDEX_IMPORT[i+4]){
+                if (Name[i] == SD_IMPORT[i+start]){
                     
                     compCnt++;
                 }
+            }
+            
+            if (pos == 0){
+                
+                for (i=0;i<sizeName;i++){
+                    
+                    store[i] = NULL;
+                }
+                
+                store[0] = '-';
+                
+                return;
             }
             
             if (compCnt == pos){
                 
                 if (skip == 0){
                     
-                    SD_POKEDEX_NAME_CNT = SD_POKEDEX_IMPORT[3]  - '0';      //  (b)
+                    SD_NAME_CNT = SD_IMPORT[3]  - '0';      //  (b)
                 
-                    for (i = 0; i < SD_POKEDEX_NAME_CNT; i++) {
+                    for (i = 0; i < SD_NAME_CNT; i++) {
                     
                         if (Cap) {
                         
-                            store[i] = SD_POKEDEX_IMPORT[i + 4];
+                            store[i] = SD_IMPORT[i + 4];
                         
                             Cap = 0;
                         }
-                        else if (SD_POKEDEX_IMPORT[i + 4] >= 'A' && SD_POKEDEX_IMPORT[i + 4] <= 'Z') {
+                        else if (SD_IMPORT[i + 4] >= 'A' && SD_IMPORT[i + 4] <= 'Z') {
                         
-                            temp = SD_POKEDEX_IMPORT[i + 4] + 32;
+                            temp = SD_IMPORT[i + 4] + 32;
                         
                             store[i] = temp;
                         }
                         else {
                         
-                            store[i] = SD_POKEDEX_IMPORT[i + 4];
+                            store[i] = SD_IMPORT[i + 4];
                         }
                     
-                        if (SD_POKEDEX_IMPORT[i + 4] == '-' || SD_POKEDEX_IMPORT[i + 4] == ' ') {
+                        if (SD_IMPORT[i + 4] == '-' || SD_IMPORT[i + 4] == ' ') {
                         
                             Cap = 1;
                         }
@@ -353,7 +367,7 @@ void SD_Interface::pokedexRead(char* Name,int NumSel) {
     
     char  temp;
     
-    char  SD_POKEDEX_IMPORT[23];
+    char  SD_POKEDEX_IMPORT[POKEDEX_SIZE];
     
     //  SD_POKEDEX_IMPORT[23] == A[23]
     //
@@ -394,7 +408,7 @@ void SD_Interface::pokedexRead(char* Name,int NumSel) {
     
     // Reset the input array, assuming that the longest pokémon name is eleven characters long.
     
-    for (i=0;i<11;i++){
+    for (i=0;i<POKEDEX_NAME;i++){
         
         Name[i] = NULL;
     }
@@ -410,7 +424,7 @@ void SD_Interface::pokedexRead(char* Name,int NumSel) {
         
         while (myFile.available()) {
             
-            for (i = 0; i < 23; i++) {
+            for (i = 0; i < POKEDEX_SIZE; i++) {
                 
                 SD_POKEDEX_IMPORT[i] = myFile.read();
             }
@@ -508,7 +522,7 @@ void SD_Interface::abilityRead(char ABIL_HEX_0,char ABIL_HEX_1,char* Ability) {
     
     char    temp;
     
-    char    SD_ABILITY_IMPORT[17];
+    char    SD_ABILITY_IMPORT[ABILITY_SIZE];
     
     // SD_ABILITY_IMPORT[17] == B[17]
     //
@@ -523,7 +537,7 @@ void SD_Interface::abilityRead(char ABIL_HEX_0,char ABIL_HEX_1,char* Ability) {
     
     // Clear the input array to prevent contamination from past uses
     
-    for (i=0;i<14;i++){
+    for (i=0;i<ABILITY_NAME;i++){
         
         Ability[i] = NULL;
     }
@@ -534,7 +548,7 @@ void SD_Interface::abilityRead(char ABIL_HEX_0,char ABIL_HEX_1,char* Ability) {
         
         while (myFile.available()) {
             
-            for (i = 0; i < 17; i++) {
+            for (i = 0; i < ABILITY_SIZE; i++) {
                 
                 SD_ABILITY_IMPORT[i] = myFile.read();
             }
@@ -617,14 +631,14 @@ void SD_Interface::attackRead(char ATK_HEX_0,char ATK_HEX_1,char* Attack) {
     
     char    temp;
     
-    char    SD_ATTACK_IMPORT[19];
+    char    SD_ATTACK_IMPORT[ATTACK_SIZE];
     
     // SD_ABILITY_IMPORT[19] == B[19]
     //
     // a. B[0]          = First hexadecimal identifier
     // b. B[1]          = Second hexadecimal identifier
     // c. B[2]          = Hexadecimal number of characters to retrieve from B[3]-B[16] (Add 1)
-    // d. B[3]-B[18]    = Ability Name
+    // d. B[3]-B[18]    = Attack Name
     
     int     SD_ATTACK_CNT;
     
@@ -632,7 +646,7 @@ void SD_Interface::attackRead(char ATK_HEX_0,char ATK_HEX_1,char* Attack) {
     
     // Clear the input array to prevent contamination from past uses
     
-    for (i=0;i<16;i++){
+    for (i=0;i<ATTACK_NAME;i++){
         
         Attack[i] = NULL;
     }
@@ -643,7 +657,7 @@ void SD_Interface::attackRead(char ATK_HEX_0,char ATK_HEX_1,char* Attack) {
         
         while (myFile.available()) {
             
-            for (i = 0; i < 19; i++) {
+            for (i = 0; i < ATTACK_SIZE; i++) {
                 
                 SD_ATTACK_IMPORT[i] = myFile.read();
             }
@@ -726,14 +740,14 @@ int SD_Interface::itemRead(char ITEM_HEX_0,char ITEM_HEX_1,char* Item) {
     
     char    temp;
     
-    char    SD_ITEM_IMPORT[20];
+    char    SD_ITEM_IMPORT[ITEM_SIZE];
     
     // SD_ABILITY_IMPORT[20] == B[20]
     //
     // a. B[0]          = First hexadecimal identifier
     // b. B[1]          = Second hexadecimal identifier
     // c. B[2]          = Hexadecimal number of characters to retrieve from B[3]-B[16] (Add 1)
-    // d. B[3]-B[18]    = Ability Name
+    // d. B[3]-B[18]    = Item Name
     // e. B[19]         = Item Flag
     
     int     SD_ITEM_CNT;
@@ -743,7 +757,7 @@ int SD_Interface::itemRead(char ITEM_HEX_0,char ITEM_HEX_1,char* Item) {
     
     // Clear the input array to prevent contamination from past uses
     
-    for (i=0;i<16;i++){
+    for (i=0;i<ITEM_NAME;i++){
         
         Item[i] = NULL;
     }
@@ -754,7 +768,7 @@ int SD_Interface::itemRead(char ITEM_HEX_0,char ITEM_HEX_1,char* Item) {
         
         while (myFile.available()) {
             
-            for (i = 0; i < 20; i++) {
+            for (i = 0; i < ITEM_SIZE; i++) {
                 
                 SD_ITEM_IMPORT[i] = myFile.read();
             }
@@ -850,14 +864,14 @@ void SD_Interface::natureRead(char NATR_HEX_0,char NATR_HEX_1,char* Nature,int N
     
     char    temp;
     
-    char    SD_NATR_IMPORT[12];
+    char    SD_NATR_IMPORT[NATURE_SIZE];
     
     // SD_ABILITY_IMPORT[12] == B[12]
     //
     // a. B[0]          = First hexadecimal identifier
     // b. B[1]          = Second hexadecimal identifier
     // c. B[2]          = Hexadecimal number of characters to retrieve from B[3]-B[16] (Add 1)
-    // d. B[3]-B[9]     = Ability Name
+    // d. B[3]-B[9]     = Nature Name
     // e. B[10]         = High Stat
     // f. B[11]         = Low Stat
     
@@ -867,7 +881,7 @@ void SD_Interface::natureRead(char NATR_HEX_0,char NATR_HEX_1,char* Nature,int N
     
     // Clear the input array to prevent contamination from past uses
     
-    for (i=0;i<7;i++){
+    for (i=0;i<NATURE_NAME;i++){
         
         Nature[i] = NULL;
     }
@@ -878,7 +892,7 @@ void SD_Interface::natureRead(char NATR_HEX_0,char NATR_HEX_1,char* Nature,int N
         
         while (myFile.available()) {
             
-            for (i = 0; i < 12; i++) {
+            for (i = 0; i < NATURE_SIZE; i++) {
                 
                 SD_NATR_IMPORT[i] = myFile.read();
             }

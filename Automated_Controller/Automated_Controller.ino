@@ -48,12 +48,12 @@ void loop() {
 
   //sd.Test("3");
 
-  nameSearch();
+  nameSearch(POKEDEX_ID);
 
   while (1);
 }
 
-void nameSearch() {
+void nameSearch(int databaseID) {
 
   int scrOpen   = 279;
   int sel;
@@ -63,16 +63,36 @@ void nameSearch() {
   int X         = 14;
   int Y         = 164;
   int cnt       = 0;
+  int sizeDB;
 
-  char*  Name[11];
+  char*  Name[sizeDB];
   char*  Search[4][11];
 
-  char   NAME[11];
-  char   SEARCH[11];
+  char   NAME[sizeDB];
+  char   SEARCH[sizeDB];
 
-  int    tempName[11];
+  int    tempName[sizeDB];
 
-  for (i = 0; i < 11; i++) {
+  switch(databaseID){
+
+      case POKEDEX_ID:
+        sizeDB = POKEDEX_NAME;
+        break;
+      case ABILITY_ID:
+        sizeDB = ABILITY_NAME;
+        break;
+      case ATTACK_ID:
+        sizeDB = ATTACK_NAME;
+        break;
+      case ITEM_ID:
+        sizeDB = ITEM_NAME;
+        break;
+      case NATURE_ID:
+        sizeDB = NATURE_NAME;
+        break;
+  }
+
+  for (i = 0; i < sizeDB; i++) {
 
     tempName[i] = NULL;
     SEARCH[i] = NULL;
@@ -183,7 +203,7 @@ void nameSearch() {
         NAME[i] = tools.KeyLayout[tempName[i]];
       }
 
-      sd.search(NAME, SEARCH, cnt, 0);
+      sd.search(databaseID,NAME, SEARCH, cnt, 0);
 
       for (i = 0; i < 11; i++) {
 
@@ -225,7 +245,7 @@ void nameSearch() {
         NAME[i] = tools.KeyLayout[tempName[i]];
       }
 
-      sd.search(NAME, SEARCH, cnt, 0);
+      sd.search(databaseID,NAME, SEARCH, cnt, 0);
 
       for (i = 0; i < 11; i++) {
 
