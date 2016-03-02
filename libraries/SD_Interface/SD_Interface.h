@@ -42,6 +42,8 @@ public:
     // Database Manipulation
     //
     
+    void    search(char* Name,char* store,int pos,int skip);
+    
     void    pokedexRead(char* Name,int NumSel = 1);
     void    abilityRead(char ABIL_HEX_0,char ABIL_HEX_1,char* Ability);
     void    attackRead(char ATK_HEX_0,char ATK_HEX_1,char* Attack);
@@ -73,6 +75,8 @@ private:
     int     AbilityType;
     
     int     i;
+    int     j;
+    int     k;
 };
 
 #endif

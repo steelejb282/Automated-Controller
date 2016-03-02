@@ -64,9 +64,19 @@ void nameSearch() {
   int Y         = 164;
   int cnt       = 0;
 
-  char* Name[11];
-  char* NAME[11];
-  char* Search[11][4];
+  char*  Name[11];
+  char*  Search[4][11];
+
+  char   NAME[11];
+  char   SEARCH[11];
+
+  int    tempName[11];
+
+  for (i=0;i<11;i++){
+
+      tempName[i] = NULL;
+      SEARCH[i] = NULL;
+  }
 
   GLCD.setBackColor(VGA_SCR_BACK);
   GLCD.setFont(SmallFont);
@@ -93,6 +103,10 @@ void nameSearch() {
   tools.initMenuSetup(scrOpen);
 
   GLCD.setColor(VGA_SCR_BACK);
+  GLCD.fillRect(X, 34, X + 210, 54);
+  GLCD.fillRect(X, 59, X + 210, 79);
+  GLCD.fillRect(X, 84, X + 210, 104);
+  GLCD.fillRect(X, 109, X + 210, 129);
   GLCD.fillRect(X, Y - 25, X + 210, Y - 5);
 
   tools.writeButton(&button);
@@ -122,6 +136,8 @@ void nameSearch() {
 
       keys.shift = !keys.shift;
       keys.caps = 0;
+
+      holdShift = 1;
     }
 
     if (keys.caps || keys.shift) {
@@ -149,24 +165,8 @@ void nameSearch() {
 
     if (sel > 3 && cnt < 11) {
 
-      /*if (!keys.shift && !keys.caps){
-
-          if (sel > 13 && sel < 40){
-
-              
-          }
-          else{
-
-              NAME[cnt] = button.text.get(sel);
-          }
-      }
-      else{
-
-          NAME[cnt] = button.text.get(sel);
-      }*/
-
       Name[cnt] = button.text.get(sel);
-      NAME[cnt] = keys.textHigh.get(sel);
+      tempName[cnt] = sel-4;
       cnt++;
 
       GLCD.setColor(VGA_SCR_BACK);
@@ -176,13 +176,35 @@ void nameSearch() {
       for (i = 0; i < cnt; i++) {
 
         GLCD.print(Name[i], X + 5 + 8 * i, Y - 21);
+        NAME[i] = tools.KeyLayout[tempName[i]];
+      }
+      
+      sd.search(NAME, SEARCH, cnt, 0);
+
+      for (i = 0; i < 11; i++) {
+
+        if (tempName[i] == NULL){
+
+            NAME[i] = NULL;
+        }
+        else{
+     
+            NAME[i] = tools.KeyLayout[tempName[i]];
+        }
+
+        GLCD.print(String(SEARCH[i]),X+5+i*8,113);
+      }
+
+      for (i=0;i<11;i++){
+
+          SEARCH[i] = NULL;
       }
     }
     else if (sel == 3 && cnt <= 11) {
 
       cnt--;
       Name[cnt] = NULL;
-      NAME[cnt] = NULL;
+      tempName[cnt] = NULL;
 
       GLCD.setColor(VGA_SCR_BACK);
       GLCD.fillRect(X, Y - 25, X + 210, Y - 5);
@@ -191,7 +213,28 @@ void nameSearch() {
       for (i = 0; i < cnt; i++) {
 
         GLCD.print(Name[i], X + 5 + 8 * i, Y - 21);
+
+        NAME[i] = tools.KeyLayout[tempName[i]];
+        Serial.print(NAME[i]);
       }
+      Serial.println();
+
+      sd.search(NAME, SEARCH, cnt, 0);
+
+      for (i = 0; i < 11; i++) {
+
+        if (tempName[i] == NULL){
+
+            NAME[i] = NULL;
+        }
+        else{
+     
+            NAME[i] = tools.KeyLayout[tempName[i]];
+        }
+
+        Serial.print(SEARCH[i]);
+      }
+      Serial.println();
     }
 
     if (holdShift == 2) {
@@ -218,6 +261,20 @@ void nameSearch() {
   sel = NULL;
 }
 
+void capitalize(char* Word, char* WORD, int Size) {
+
+  for (i = 0; i < Size; i++) {
+
+  if (Word[i] >= 'a' && Word[i] <= 'z') {
+
+      WORD[i] += 'A' - 'a';
+    }
+    else {
+
+      WORD[i] = Word[i];
+    }
+  }
+}
 
 void initBox() {
 
@@ -975,7 +1032,7 @@ void pokemonInfoRead(int Num, char* Pokemon) {
     AbilityType = sd.infoWrite(2);
   }
 }
-int readButton(pushButton* info) {
+int readButton(pushButton * info) {
 
   int hold = 1;
 

@@ -37,8 +37,8 @@ keyboard ToolBox::initKeyboard(int anchorX,int anchorY){
     keyboard keys;
     
     keys.textLow.add(" Ent");
-    keys.textLow.add(" Shft");
     keys.textLow.add(" Caps");
+    keys.textLow.add(" Shft");
     keys.textLow.add("Del ");
     keys.textLow.add("1");
     keys.textLow.add("2");
@@ -77,13 +77,13 @@ keyboard ToolBox::initKeyboard(int anchorX,int anchorY){
     keys.textLow.add("y");
     keys.textLow.add("z");
     keys.textLow.add(".");
-    keys.textLow.add("'");
+    keys.textLow.add("`");
     keys.textLow.add("-");
     keys.textLow.add(" ");
     
     keys.textHigh.add(" Ent");
-    keys.textHigh.add(" Shft");
     keys.textHigh.add(" Caps");
+    keys.textHigh.add(" Shft");
     keys.textHigh.add("Del ");
     keys.textHigh.add("1");
     keys.textHigh.add("2");

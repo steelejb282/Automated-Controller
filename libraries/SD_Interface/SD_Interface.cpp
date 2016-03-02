@@ -205,6 +205,132 @@ void SD_Interface::GameList(int list[],int size,int type){
 // Functions designed to read and interpret the stored databases
 //
 
+void SD_Interface::search(char* Name,char* store,int pos,int skip){
+    
+    //  Foreward...
+    
+    int   Cap = 1;
+    int   End = 0;
+    
+    int   NatNum;
+    
+    char  temp;
+    
+    char  SD_POKEDEX_IMPORT[23];
+    
+    int   compCnt = 0;
+    
+    //  SD_POKEDEX_IMPORT[23] == A[23]
+    //
+    //  a. A[0]-A[2]   = Number identification
+    //  b. A[3]        = Number of characters to retreive from A[4]-A[14]
+    //  c. A[4]-A[14]  = Pokemon's name
+    //  d. A[15]       = Gender spread identification
+    //          0:  M/F
+    //          1:  M/-
+    //          2:  -/F
+    //          3:  -/-
+    //  e. A[16]-A[17] = Primary Ability hexadecimal value
+    //  f. A[18]-A[19] = Secondary Ability hexadecimal value
+    //  g. A[20]-A[21] = Hidden Ability hexadeciaml value
+    //  h. A[22]       = Ability spread identification
+    //          0:  1/1/1
+    //          1:  1/-/1
+    //          2:  1/1/-
+    //          3:  1/-/-
+    //
+    // TO BE ADDED:
+    //
+    // For eventual use in the breeding routine, it would be useful for the program to understand
+    // the mechanics of breeding, particularly of the various types Hatched Pokemon, as well as
+    // egg group listings for compatibility testing.  Therefore,
+    //
+    // i. A[23]-A[25]   = Identifier for the base form of the mother/Ditto borne
+    // j. A[26]-A[28]   = Identifier for the base form, in the case of use of Incense
+    // k. A[29]         = Incense identifier (0 if not compatible to Incense breeding)
+    // l. A[30]         = Hexadecimal identifier for Egg Group 1 (ranging from 1-F)
+    // m. A[31]         = Hexadecimal identifier for Egg Group 2 (0 for no secondary egg group)
+    
+    int   SD_POKEDEX_NAME_CNT;
+    
+    myFile = SD.open(POKEDEX, FILE_READ);
+    
+    if (myFile) {
+        
+        while (myFile.available()) {
+            
+            for (i = 0; i < 23; i++) {
+                
+                SD_POKEDEX_IMPORT[i] = myFile.read();
+            }
+            
+            for (i=0;i<pos;i++){
+                
+                if (Name[i] == SD_POKEDEX_IMPORT[i+4]){
+                    
+                    compCnt++;
+                }
+            }
+            
+            if (compCnt == pos){
+                
+                if (skip == 0){
+                    
+                    SD_POKEDEX_NAME_CNT = SD_POKEDEX_IMPORT[3]  - '0';      //  (b)
+                
+                    for (i = 0; i < SD_POKEDEX_NAME_CNT; i++) {
+                    
+                        if (Cap) {
+                        
+                            store[i] = SD_POKEDEX_IMPORT[i + 4];
+                        
+                            Cap = 0;
+                        }
+                        else if (SD_POKEDEX_IMPORT[i + 4] >= 'A' && SD_POKEDEX_IMPORT[i + 4] <= 'Z') {
+                        
+                            temp = SD_POKEDEX_IMPORT[i + 4] + 32;
+                        
+                            store[i] = temp;
+                        }
+                        else {
+                        
+                            store[i] = SD_POKEDEX_IMPORT[i + 4];
+                        }
+                    
+                        if (SD_POKEDEX_IMPORT[i + 4] == '-' || SD_POKEDEX_IMPORT[i + 4] == ' ') {
+                        
+                            Cap = 1;
+                        }
+                    }
+
+                    break;
+                }
+                else{
+                    
+                    skip--;
+                }
+                
+            }
+            else{
+                
+                store[0] = '-';
+            }
+            
+            compCnt = 0;
+            
+            myFile.read();
+        }
+        
+        myFile.close();
+    }
+    else {
+        
+        //Serial.println("SD Card could not found.");
+        
+        // Place the "Missing SD" notice on the board
+    }
+}
+
 void SD_Interface::pokedexRead(char* Name,int NumSel) {
     
     //  pokedexRead is designed to receive a user provided array [Name] and a selected value
