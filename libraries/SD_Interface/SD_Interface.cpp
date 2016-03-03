@@ -222,40 +222,44 @@ void SD_Interface::search(int databaseID,char* Name,char* store,int pos,int skip
     int   sizeDB;
     int   sizeName;
     char* database;
+    int   nameMod;
     
     switch(databaseID){
             
         case POKEDEX_ID:
-            database = POKEDEX;
+            myFile = SD.open(POKEDEX, FILE_READ);
             sizeName = POKEDEX_NAME;
             sizeDB = POKEDEX_SIZE;
             start = 4;
+            nameMod = 0;
             break;
         case ABILITY_ID:
-            database = ABILITY;
+            myFile = SD.open(ABILITY, FILE_READ);
             sizeName = ABILITY_NAME;
             sizeDB = ABILITY_SIZE;
+            nameMod = 0;
             break;
         case ATTACK_ID:
-            database = ATTACK;
+            myFile = SD.open(ATTACK, FILE_READ);
             sizeName = ATTACK_NAME;
             sizeDB = ATTACK_SIZE;
+            nameMod = 1;
             break;
         case ITEM_ID:
-            database = ITEM;
+            myFile = SD.open(ITEM, FILE_READ);
             sizeName = ITEM_NAME;
             sizeDB = ITEM_SIZE;
+            nameMod = 1;
             break;
         case NATURE_ID:
-            database = NATURE;
+            myFile = SD.open(NATURE, FILE_READ);
             sizeName = NATURE_NAME;
             sizeDB = NATURE_SIZE;
+            nameMod = 0;
             break;
     }
     
     char  SD_IMPORT[sizeDB];
-    
-    myFile = SD.open(database, FILE_READ);
     
     if (myFile) {
         
@@ -290,28 +294,39 @@ void SD_Interface::search(int databaseID,char* Name,char* store,int pos,int skip
                 
                 if (skip == 0){
                     
-                    SD_NAME_CNT = SD_IMPORT[3]  - '0';      //  (b)
+                    if (SD_IMPORT[start-1] >= 'A'){
+                        
+                        SD_NAME_CNT = SD_IMPORT[start-1]-'A'+10;
+                    }
+                    else{
+                        
+                        SD_NAME_CNT = SD_IMPORT[start-1]-'0';
+                    }
+                    
+                    SD_NAME_CNT += nameMod;
+                    
+                    //SD_NAME_CNT = SD_IMPORT[start-1]  - '0';      //  (b)
                 
                     for (i = 0; i < SD_NAME_CNT; i++) {
                     
                         if (Cap) {
                         
-                            store[i] = SD_IMPORT[i + 4];
+                            store[i] = SD_IMPORT[i + start];
                         
                             Cap = 0;
                         }
-                        else if (SD_IMPORT[i + 4] >= 'A' && SD_IMPORT[i + 4] <= 'Z') {
+                        else if (SD_IMPORT[i + start] >= 'A' && SD_IMPORT[i + start] <= 'Z') {
                         
-                            temp = SD_IMPORT[i + 4] + 32;
+                            temp = SD_IMPORT[i + start] + 32;
                         
                             store[i] = temp;
                         }
                         else {
                         
-                            store[i] = SD_IMPORT[i + 4];
+                            store[i] = SD_IMPORT[i + start];
                         }
                     
-                        if (SD_IMPORT[i + 4] == '-' || SD_IMPORT[i + 4] == ' ') {
+                        if (SD_IMPORT[i + start] == '-' || SD_IMPORT[i + start] == ' ') {
                         
                             Cap = 1;
                         }

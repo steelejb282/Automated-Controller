@@ -63,34 +63,39 @@ void nameSearch(int databaseID) {
   int X         = 14;
   int Y         = 164;
   int cnt       = 0;
+
   int sizeDB;
+  int nameDB;
+
+  switch (databaseID) {
+
+    case POKEDEX_ID:
+      sizeDB = POKEDEX_NAME;
+      break;
+    case ABILITY_ID:
+      sizeDB = ABILITY_NAME;
+      break;
+    case ATTACK_ID:
+      sizeDB = ATTACK_NAME;
+      break;
+    case ITEM_ID:
+      sizeDB = ITEM_NAME;
+      break;
+    case NATURE_ID:
+      sizeDB = NATURE_NAME;
+      break;
+  }
 
   char*  Name[sizeDB];
-  char*  Search[4][11];
+  char*  Search[4][sizeDB];
 
   char   NAME[sizeDB];
   char   SEARCH[sizeDB];
 
   int    tempName[sizeDB];
 
-  switch(databaseID){
-
-      case POKEDEX_ID:
-        sizeDB = POKEDEX_NAME;
-        break;
-      case ABILITY_ID:
-        sizeDB = ABILITY_NAME;
-        break;
-      case ATTACK_ID:
-        sizeDB = ATTACK_NAME;
-        break;
-      case ITEM_ID:
-        sizeDB = ITEM_NAME;
-        break;
-      case NATURE_ID:
-        sizeDB = NATURE_NAME;
-        break;
-  }
+  String searchRes;
+  String SearchResults[4];
 
   for (i = 0; i < sizeDB; i++) {
 
@@ -123,11 +128,7 @@ void nameSearch(int databaseID) {
   tools.initMenuSetup(scrOpen);
 
   GLCD.setColor(VGA_SCR_BACK);
-  GLCD.fillRect(X, 34, X + 210, 54);
-  GLCD.fillRect(X, 59, X + 210, 79);
-  GLCD.fillRect(X, 84, X + 210, 104);
-  GLCD.fillRect(X, 109, X + 210, 129);
-  GLCD.fillRect(X, Y - 25, X + 210, Y - 5);
+  GLCD.fillRect(X, Y - 25, X + TFT_X-30, Y - 5);
 
   tools.writeButton(&button);
 
@@ -183,18 +184,14 @@ void nameSearch(int databaseID) {
       tools.writeButton(&button);
     }
 
-    if (sel > 3 && cnt < 11) {
+    if (sel > 3 && cnt < sizeDB) {
 
       Name[cnt] = button.text.get(sel);
       tempName[cnt] = sel - 4;
       cnt++;
 
       GLCD.setColor(VGA_SCR_BACK);
-      GLCD.fillRect(X, Y - 25, X + 210, Y - 5);
-      GLCD.fillRect(X, 34, X + 210, 54);
-      GLCD.fillRect(X, 59, X + 210, 79);
-      GLCD.fillRect(X, 84, X + 210, 104);
-      GLCD.fillRect(X, 109, X + 210, 129);
+      GLCD.fillRect(X, Y - 25, X + sizeDB*8+10, Y - 5);
       GLCD.setColor(VGA_BLACK);
 
       for (i = 0; i < cnt; i++) {
@@ -203,30 +200,49 @@ void nameSearch(int databaseID) {
         NAME[i] = tools.KeyLayout[tempName[i]];
       }
 
-      sd.search(databaseID,NAME, SEARCH, cnt, 0);
+      for (i = 0; i < 4; i++) {
 
-      for (i = 0; i < 11; i++) {
+        sd.search(databaseID, NAME, SEARCH, cnt, i);
 
-        if (tempName[i] == NULL) {
+        for (j = 0; j < sizeDB; j++) {
 
-          NAME[i] = NULL;
+          if (tempName[j] == NULL) {
+
+            NAME[j] = NULL;
+          }
+          else {
+
+            NAME[j] = tools.KeyLayout[tempName[j]];
+          }
+
+          searchRes += String(SEARCH[j]);
         }
-        else {
 
-          NAME[i] = tools.KeyLayout[tempName[i]];
+        SearchResults[i] = searchRes;
+
+
+        GLCD.setColor(VGA_SCR_BACK);
+        GLCD.fillRect(X, Y - 130 + i * 25, X + sizeDB*8+10, Y - 110 + i * 25);
+        GLCD.setColor(VGA_BLACK);
+        GLCD.print(searchRes, X + 5, Y - 126 + i * 25);
+
+        searchRes = String("");
+
+        for (j = 0; j < sizeDB; j++) {
+
+          SEARCH[j] = NULL;
         }
-
-        GLCD.print(String(SEARCH[i]), X + 5 + i * 8, 113);
-      }
-
-      for (i = 0; i < 11; i++) {
-
-        SEARCH[i] = NULL;
       }
     }
-    else if (sel == 3 && cnt <= 11) {
+    else if (sel == 3 && cnt <= sizeDB) {
 
       cnt--;
+
+      if (cnt < 0){
+
+          cnt = 0;
+      }
+      
       Name[cnt] = NULL;
       tempName[cnt] = NULL;
 
@@ -245,9 +261,9 @@ void nameSearch(int databaseID) {
         NAME[i] = tools.KeyLayout[tempName[i]];
       }
 
-      sd.search(databaseID,NAME, SEARCH, cnt, 0);
+      /*sd.search(databaseID, NAME, SEARCH, cnt, 0);
 
-      for (i = 0; i < 11; i++) {
+        for (i = 0; i < sizeDB; i++) {
 
         if (tempName[i] == NULL) {
 
@@ -259,6 +275,39 @@ void nameSearch(int databaseID) {
         }
 
         GLCD.print(String(SEARCH[i]), X + 5 + i * 8, 113);
+        }*/
+
+      for (i = 0; i < 4; i++) {
+
+        sd.search(databaseID, NAME, SEARCH, cnt, i);
+
+        for (j = 0; j < sizeDB; j++) {
+
+          if (tempName[j] == NULL) {
+
+            NAME[j] = NULL;
+          }
+          else {
+
+            NAME[j] = tools.KeyLayout[tempName[j]];
+          }
+
+          searchRes += String(SEARCH[j]);
+        }
+
+        SearchResults[i] = searchRes;
+
+        GLCD.setColor(VGA_SCR_BACK);
+        GLCD.fillRect(X, Y - 130 + i * 25, X + 210, Y - 110 + i * 25);
+        GLCD.setColor(VGA_BLACK);
+        GLCD.print(searchRes, X + 5, Y - 126 + i * 25);
+
+        searchRes = String("");
+
+        for (j = 0; j < sizeDB; j++) {
+
+          SEARCH[j] = NULL;
+        }
       }
     }
 
@@ -276,7 +325,7 @@ void nameSearch(int databaseID) {
       tools.writeButton(&button);
     }
 
-    if (sel == 39 || sel == 42) {
+    if (sel == 39 || sel == 42 || cnt == 0) {
 
       keys.shift  = 1;
       holdShift   = 1;
