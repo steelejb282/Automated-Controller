@@ -31,6 +31,8 @@ UTouch                  myTouch(6, 5, 4, 3, 2);
 SD_Interface            sd;
 ToolBox                 tools;
 
+File file;
+
 void setup() {
 
   Serial.begin(9600);
@@ -46,293 +48,622 @@ void loop() {
 
   //initMenu();
 
-  //sd.Test("3");
-
-  nameSearch(POKEDEX_ID);
+  searchDatabase(POKEDEX_ID, 3);
 
   while (1);
 }
 
-void nameSearch(int databaseID) {
+void search(database* Data) {
 
-  int scrOpen   = 279;
-  int sel;
-  int capType   = 0;
-  int holdCap   = 1;
-  int holdShift = 1;
-  int X         = 14;
-  int Y         = 164;
-  int cnt       = 0;
+  //database Data;
 
-  int sizeDB;
-  int nameDB;
+  //Data.ID   = dataIn.ID;
+  //Data.cnt  = dataIn.cnt;
+  //Data.skip = dataIn.skip;
 
-  switch (databaseID) {
+  //for (i = 0; i < dataIn.Result.size(); i++) {
+  //
+  //  Data.SearchID.add(dataIn.SearchID.get(i));
+  //  Data.Result.add(dataIn.Result.get(i));
+  //}
 
-    case POKEDEX_ID:
-      sizeDB = POKEDEX_NAME;
-      break;
+  int cnt = 0;
+  //  Foreward...
+
+  int   Cap = 1;
+  int   End = 0;
+
+  char  temp;
+
+  int   compCnt = 0;      // Counter for comparing query to database
+
+  int   SD_NAME_CNT;
+
+  int   sortCnt = 0;
+  int   start = 3;        // Start position of the word in the database
+  int   nameMod;          // Modifier to search name - some databases are buffered in name size
+  int   IDmod = 2;
+
+  String tempID = String("00");
+
+  Data->tempSearchID = String("");
+  Data->tempResult   = String("");
+
+  // Use the database ID to get the database location, sizes, and pertinate modifiers
+  switch (Data->ID) {
+
     case ABILITY_ID:
-      sizeDB = ABILITY_NAME;
+      file = SD.open(ABILITY, FILE_READ);
+      Data->sizeWord = ABILITY_NAME;
+      Data->sizeDB   = ABILITY_SIZE;
+      nameMod = 0;
       break;
     case ATTACK_ID:
-      sizeDB = ATTACK_NAME;
+      file = SD.open(ATTACK, FILE_READ);
+      Data->sizeWord = ATTACK_NAME;
+      Data->sizeDB   = ATTACK_SIZE;
+      nameMod = 1;
       break;
     case ITEM_ID:
-      sizeDB = ITEM_NAME;
+      file = SD.open(ITEM, FILE_READ);
+      Data->sizeWord = ITEM_NAME;
+      Data->sizeDB   = ITEM_SIZE;
+      nameMod = 1;
       break;
     case NATURE_ID:
-      sizeDB = NATURE_NAME;
+      file = SD.open(NATURE, FILE_READ);
+      Data->sizeWord = NATURE_NAME;
+      Data->sizeDB   = NATURE_SIZE;
+      nameMod = 0;
+      break;
+    default:        // Pokedex_ID
+      file = SD.open(POKEDEX, FILE_READ);
+      Data->sizeWord = POKEDEX_NAME;
+      Data->sizeDB   = POKEDEX_SIZE;
+      start   = 4;
+      nameMod = 0;
+      IDmod   = 3;
       break;
   }
 
-  char*  Name[sizeDB];
-  char*  Search[4][sizeDB];
+  //
+  //  ADD METHODS TO CLEAR INCOMING LISTS HERE
+  //
 
-  char   NAME[sizeDB];
-  char   SEARCH[sizeDB];
+  char  SD_IMPORT[Data->sizeDB];
 
-  int    tempName[sizeDB];
+  //  Convert the input query into a searchable form
+  for (i = 0; i < Data->cnt; i++) {
 
-  String searchRes;
-  String SearchResults[4];
-
-  for (i = 0; i < sizeDB; i++) {
-
-    tempName[i] = NULL;
-    SEARCH[i] = NULL;
+    Data->wordSearch.add(sd.KeyLayout[Data->wordInput.get(i) + 10]);      // Data->wordSearch.add(sd.KeyLayout[dataIn->wordInput.get(i) + 10]);
   }
 
-  GLCD.setBackColor(VGA_SCR_BACK);
-  GLCD.setFont(SmallFont);
+  if (file) {
 
-  pushButton  button;
-  keyboard    keys = tools.initKeyboard(X, Y);
+    while (file.available()) {
 
-  button.arrSize = keys.arrSize;
+      // Pull each item in the data base for analysis
+      for (i = 0; i < Data->sizeDB; i++) {
 
-  for (i = 0; i < button.arrSize; i++) {
-
-    button.text.add(keys.textHigh.get(i));
-    button.posX.add(keys.posX.get(i));
-    button.posY.add(keys.posY.get(i));
-    button.sizeX.add(keys.sizeX.get(i));
-    button.sizeY.add(keys.sizeY.get(i));
-    button.state.add(keys.state.get(i));
-    button.font.add(keys.font.get(i));
-    button.textSize.add(keys.textSize.get(i));
-    button.textPos.add(keys.textPos.get(i));
-  }
-
-  tools.footer(scrOpen - 5, OPEN);
-  tools.initMenuSetup(scrOpen);
-
-  GLCD.setColor(VGA_SCR_BACK);
-  GLCD.fillRect(X, Y - 25, X + TFT_X-30, Y - 5);
-
-  tools.writeButton(&button);
-
-  while (1) {
-
-    sel = readButton(&button);
-
-    delay(200);
-
-    if (keys.shift && sel > 3) {
-
-      if (holdShift) {
-        holdShift = 2;
-      }
-      else {
-        keys.shift = 0;
-      }
-    }
-
-    if (sel == 1) {
-
-      keys.shift = 0;
-      keys.caps = !keys.caps;
-    }
-    else if (sel == 2) {
-
-      keys.shift = !keys.shift;
-      keys.caps = 0;
-
-      holdShift = 1;
-    }
-
-    if (keys.caps || keys.shift) {
-
-      holdCap = 1;
-
-      for (i = 0; i < button.arrSize; i++) {
-
-        button.text.set(i, keys.textHigh.get(i));
+        SD_IMPORT[i] = file.read();
       }
 
-      tools.writeButton(&button);
-    }
-    else if (holdCap && !keys.shift && !keys.caps) {
+      for (i = 0; i < Data->cnt; i++) {
 
-      holdCap = 0;
+        if (SD_IMPORT[i + start] == Data->wordSearch.get(i)) {
 
-      for (i = 0; i < button.arrSize; i++) {
-
-        button.text.set(i, keys.textLow.get(i));
-      }
-
-      tools.writeButton(&button);
-    }
-
-    if (sel > 3 && cnt < sizeDB) {
-
-      Name[cnt] = button.text.get(sel);
-      tempName[cnt] = sel - 4;
-      cnt++;
-
-      GLCD.setColor(VGA_SCR_BACK);
-      GLCD.fillRect(X, Y - 25, X + sizeDB*8+10, Y - 5);
-      GLCD.setColor(VGA_BLACK);
-
-      for (i = 0; i < cnt; i++) {
-
-        GLCD.print(Name[i], X + 5 + 8 * i, Y - 21);
-        NAME[i] = tools.KeyLayout[tempName[i]];
-      }
-
-      for (i = 0; i < 4; i++) {
-
-        sd.search(databaseID, NAME, SEARCH, cnt, i);
-
-        for (j = 0; j < sizeDB; j++) {
-
-          if (tempName[j] == NULL) {
-
-            NAME[j] = NULL;
-          }
-          else {
-
-            NAME[j] = tools.KeyLayout[tempName[j]];
-          }
-
-          searchRes += String(SEARCH[j]);
-        }
-
-        SearchResults[i] = searchRes;
-
-
-        GLCD.setColor(VGA_SCR_BACK);
-        GLCD.fillRect(X, Y - 130 + i * 25, X + sizeDB*8+10, Y - 110 + i * 25);
-        GLCD.setColor(VGA_BLACK);
-        GLCD.print(searchRes, X + 5, Y - 126 + i * 25);
-
-        searchRes = String("");
-
-        for (j = 0; j < sizeDB; j++) {
-
-          SEARCH[j] = NULL;
+          compCnt++;
         }
       }
-    }
-    else if (sel == 3 && cnt <= sizeDB) {
 
-      cnt--;
+      if (compCnt == Data->cnt) {
 
-      if (cnt < 0){
+        SD_NAME_CNT = SD_IMPORT[IDmod];
 
-          cnt = 0;
-      }
-      
-      Name[cnt] = NULL;
-      tempName[cnt] = NULL;
+        if (SD_NAME_CNT >= 'A') {
 
-      GLCD.setColor(VGA_SCR_BACK);
-      GLCD.fillRect(X, Y - 25, X + 210, Y - 5);
-      GLCD.fillRect(X, 34, X + 210, 54);
-      GLCD.fillRect(X, 59, X + 210, 79);
-      GLCD.fillRect(X, 84, X + 210, 104);
-      GLCD.fillRect(X, 109, X + 210, 129);
-      GLCD.setColor(VGA_BLACK);
-
-      for (i = 0; i < cnt; i++) {
-
-        GLCD.print(Name[i], X + 5 + 8 * i, Y - 21);
-
-        NAME[i] = tools.KeyLayout[tempName[i]];
-      }
-
-      /*sd.search(databaseID, NAME, SEARCH, cnt, 0);
-
-        for (i = 0; i < sizeDB; i++) {
-
-        if (tempName[i] == NULL) {
-
-          NAME[i] = NULL;
+          SD_NAME_CNT -= 'A';
+          SD_NAME_CNT += 10 + nameMod;
         }
         else {
 
-          NAME[i] = tools.KeyLayout[tempName[i]];
+          SD_NAME_CNT -= '0' + nameMod;
         }
 
-        GLCD.print(String(SEARCH[i]), X + 5 + i * 8, 113);
-        }*/
+        for (i = 0; i < SD_NAME_CNT; i++) {
 
-      for (i = 0; i < 4; i++) {
+          Data->wordStorage.add(SD_IMPORT[i + start]);
+        }
 
-        sd.search(databaseID, NAME, SEARCH, cnt, i);
+        for (i = 0; i < SD_NAME_CNT; i++) {
 
-        for (j = 0; j < sizeDB; j++) {
+          if (Cap) {
 
-          if (tempName[j] == NULL) {
+            Data->wordStorage.set(i, SD_IMPORT[i + start]);
+            Cap = 0;
+          }
+          else if (Data->wordStorage.get(i) >= 'A' && Data->wordStorage.get(i) <= 'Z') {
 
-            NAME[j] = NULL;
+            Data->wordStorage.set(i, SD_IMPORT[i + start] - 'A' + 'a');
           }
           else {
 
-            NAME[j] = tools.KeyLayout[tempName[j]];
+            Data->wordStorage.set(i, SD_IMPORT[i + start]);
           }
 
-          searchRes += String(SEARCH[j]);
+          if (Data->wordStorage.get(i) == '-' || Data->wordStorage.get(i) == '.' || Data->wordStorage.get(i) == ' ') {
+
+            Cap = 1;
+          }
         }
 
-        SearchResults[i] = searchRes;
+        for (i = 0; i < SD_NAME_CNT; i++) {
 
-        GLCD.setColor(VGA_SCR_BACK);
-        GLCD.fillRect(X, Y - 130 + i * 25, X + 210, Y - 110 + i * 25);
-        GLCD.setColor(VGA_BLACK);
-        GLCD.print(searchRes, X + 5, Y - 126 + i * 25);
+          Data->tempResult += String(Data->wordStorage.get(i));
+        }
 
-        searchRes = String("");
+        Data->Result.add(Data->tempResult);
 
-        for (j = 0; j < sizeDB; j++) {
+        //Serial.println(Data->Result.get(cnt));
+        cnt++;
+      }
 
-          SEARCH[j] = NULL;
+      Data->wordStorage.clear();
+      Data->tempResult = String("");
+      compCnt = 0;
+      Cap = 1;
+
+      file.read();
+    }
+
+    //
+    // ALPHABETIZE START
+    //
+
+    // Fill the list with the current iteration
+    for (j = 0; j < Data->Result.size(); j++) {
+
+      Data->betaResult.add(Data->Result.get(j));
+    }
+
+    //for (i = 0; i < Data->Result.size() - 1; i++) {
+    while (sortCnt < Data->Result.size()-1){
+
+      // Remove the previous iteration of the list
+      //Data->betaResult.clear();
+      sortCnt = 0;
+      
+      //
+      for (j = 0; j < Data->Result.size() - 1; j++) {
+
+        if (Data->Result.get(j) > Data->Result.get(j + 1)) {
+
+          Data->betaResult.set(j, Data->Result.get(j + 1));
+          Data->betaResult.set(j + 1, Data->Result.get(j));
+        }
+        else {
+
+          sortCnt++;
+        }
+
+        for (k = 0; k < Data->Result.size(); k++) {
+
+          Data->Result.set(k, Data->betaResult.get(k));
+        }
+
+        Data->betaResult.clear();
+
+        for (k = 0; k < Data->Result.size(); k++) {
+
+          Data->betaResult.add(Data->Result.get(k));
         }
       }
-    }
 
-    if (holdShift == 2) {
+      for (j = 0; j < Data->Result.size(); j++) {
 
-      holdShift = 0;
-
-      holdCap = 0;
-
-      for (i = 0; i < button.arrSize; i++) {
-
-        button.text.set(i, keys.textLow.get(i));
+        Data->Result.set(j, Data->betaResult.get(j));
       }
 
-      tools.writeButton(&button);
+      //if (sortCnt == Data->Result.size()) {
+
+      //  i = Data->Result.size();
+      //}
     }
 
-    if (sel == 39 || sel == 42 || cnt == 0) {
+    Serial.println(sortCnt);
+    Serial.println(Data->Result.size());
 
-      keys.shift  = 1;
-      holdShift   = 1;
-    }
+    //
+    // ALPHABETIZE END
+    //
+
+    file.close();
+  }
+  else {
+
+    //Serial.println("SD Card could not found.");
+
+    // Place the "Missing SD" notice on the board
   }
 
-  sel = NULL;
+  //  for (i=0;i<Data->Result.size();i++){
+  //
+  //      Serial.println(Data->Result.get(i));
+  //  }
+  //
+  //  Serial.println();
+
+  //  return Data;
+}
+
+void searchDatabase(int databaseID, const int query) {
+
+  database data;
+
+  data.ID = databaseID;
+  // data.skip = 0;
+
+  String test = String("000");
+  int cnt = 0;
+
+  data.wordInput.add('G' - 'A');
+  //data.wordInput.add('a' - 'a');
+  //data.wordInput.add('r' - 'a');
+  //data.wordInput.add('l' - 'a');
+  //data.wordInput.add('i' - 'a');
+  //data.wordInput.add('a' - 'a');
+
+  data.cnt = data.wordInput.size();
+
+  //  data.ID = databaseID;
+
+  //while (Data.SearchID.get(cnt - 1) == test) {
+
+  search(&data);
+
+  for (i = 0; i < data.Result.size(); i++) {
+
+    Serial.println(data.Result.get(i));
+  }
+
+  //  cnt++;
+  //}
+
+  /*for (i = 0; i < Data.Result.size(); i++) {
+
+    Serial.println(Data.Result.get(i));
+    }
+    Serial.println();
+    Serial.print("Done");*/
+
+  while (1);
+  /*
+    //
+    // searchDatabase is designed to allow for the user to specifically seek out an item stored in one of the onboard databases.
+    //
+
+    int scrOpen;
+    int sel;
+    int capType   = 0;
+    int holdCap   = 1;
+    int holdShift = 1;
+    int cnt       = 0;
+    int X;
+    int Y;
+    int anchor;
+    int img       = 0;
+
+    int sizeDB;
+    int nameDB;
+  */
+  /*if (query < 1 || query > 3) {
+
+    if (query < 1) {
+
+      query = 1;
+    }
+    else {
+
+      query = 3;
+    }
+    }*/
+  /*
+    anchor = query * 25 + 40;
+
+    switch (databaseID) {
+
+      case POKEDEX_ID:
+        sizeDB = POKEDEX_NAME;
+        img    = 1;
+        break;
+      case ABILITY_ID:
+        sizeDB = ABILITY_NAME;
+        break;
+      case ATTACK_ID:
+        sizeDB = ATTACK_NAME;
+        break;
+      case ITEM_ID:
+        sizeDB = ITEM_NAME;
+        break;
+      case NATURE_ID:
+        sizeDB = NATURE_NAME;
+        break;
+    }
+
+    char*  Name[sizeDB];
+    char*  Search[query][sizeDB];
+
+    char   NAME[11];
+    char   SEARCH[11];
+
+    int    tempName[sizeDB];
+
+    String nameRes;
+    String searchRes;
+    String SearchResults[query];
+
+    int searchBar = sizeDB * 8 + 10;
+
+    for (i = 0; i < sizeDB; i++) {
+
+      tempName[i] = NULL;
+      SEARCH[i] = NULL;
+    }
+
+    GLCD.setBackColor(VGA_SCR_BACK);
+    GLCD.setFont(SmallFont);
+
+    pushButton  button;
+    keyboard    keys = tools.initKeyboard(anchor);
+
+    button.arrSize = keys.arrSize;
+    scrOpen        = keys.scrOpen;
+    X              = keys.anchorX;
+    Y              = keys.anchorY;
+
+    for (i = 0; i < button.arrSize; i++) {
+
+      button.text.add(keys.textHigh.get(i));
+      button.posX.add(keys.posX.get(i));
+      button.posY.add(keys.posY.get(i));
+      button.sizeX.add(keys.sizeX.get(i));
+      button.sizeY.add(keys.sizeY.get(i));
+      button.state.add(keys.state.get(i));
+      button.font.add(keys.font.get(i));
+      button.textSize.add(keys.textSize.get(i));
+      button.textPos.add(keys.textPos.get(i));
+    }
+
+    tools.footer(scrOpen - 5, OPEN);
+    tools.initMenuSetup(scrOpen);
+
+    GLCD.setColor(VGA_SCR_BACK);
+    GLCD.fillRect(keys.searchBar.get(0), keys.searchBar.get(1), keys.searchBar.get(2), keys.searchBar.get(3));
+
+    if (img) {
+
+      // Leave this for now.  Return when a larger LCD is available, and plot out image inclusion
+    }
+
+    for (i = 0; i < query; i++) {
+
+      GLCD.setColor(VGA_SCR_BACK);
+      GLCD.fillRect(X + 25, headerSize + innerBuff + outerBuff + 25 * i, X + searchBar + 25, headerSize + innerBuff + outerBuff + 20 + 25 * i);
+      GLCD.setColor(VGA_BLACK);
+      GLCD.print("-", X + 30, headerSize + innerBuff + outerBuff + 4 + 25 * i);
+    }
+
+    tools.writeButton(&button);
+
+    while (1) {
+
+      sel = readButton(&button);
+
+      delay(200);
+
+      if (sel == 0) {
+
+        //Temporary Reset
+        searchDatabase(POKEDEX_ID, 3);
+      }
+
+      if (keys.shift && sel > 2 && sel < 43) {
+
+        if (holdShift) {
+          holdShift = 2;
+        }
+        else {
+          keys.shift = 0;
+        }
+      }
+
+      if (sel == 44) {
+
+        keys.shift = 0;
+        keys.caps = !keys.caps;
+      }
+      else if (sel == 43) {
+
+        keys.shift = !keys.shift;
+        keys.caps = 0;
+
+        holdShift = 1;
+      }
+
+      if (keys.caps || keys.shift) {
+
+        holdCap = 1;
+
+        for (i = 0; i < button.arrSize; i++) {
+
+          button.text.set(i, keys.textHigh.get(i));
+        }
+
+        //GLCD.fillRect(0, 0, TFT_X, TFT_Y);
+        tools.writeButton(&button);
+      }
+      else if (holdCap && !keys.shift && !keys.caps) {
+
+        holdCap = 0;
+
+        for (i = 0; i < button.arrSize; i++) {
+
+          button.text.set(i, keys.textLow.get(i));
+        }
+
+        tools.writeButton(&button);
+      }
+
+
+
+      if (sel > 2 && sel < 43 && cnt < sizeDB) {
+
+        Name[cnt] = button.text.get(sel);
+        tempName[cnt] = sel - 3;
+        cnt++;
+
+        GLCD.setColor(VGA_SCR_BACK);
+        GLCD.fillRect(keys.searchBar.get(0), keys.searchBar.get(1), keys.searchBar.get(2), keys.searchBar.get(3));
+        GLCD.setColor(VGA_BLACK);
+
+        for (i = 0; i < cnt; i++) {
+
+          nameRes += String(Name[i]);
+          NAME[i] = tools.KeyLayout[tempName[i]];
+        }
+
+        GLCD.print(nameRes, keys.searchBar.get(0) + 5, keys.searchBar.get(1) + 4);
+
+        for (i = 0; i < 1; i++) { // i < query
+
+          sd.search(databaseID, NAME, SEARCH, cnt, i);
+
+          Serial.println(sd.Masuda(READ));
+          Serial.print(i);
+          Serial.print(": ");
+
+          for (j=0;j<cnt;j++){
+
+              Serial.print(NAME[i]);
+          }
+
+          Serial.print(", ");
+
+          for (j=0;j<cnt;j++){
+
+              Serial.print(SEARCH[i]);
+          }
+          Serial.println();
+
+          for (j = 0; j < sizeDB; j++) {
+
+            if (tempName[j] == NULL) {
+
+              NAME[j] = NULL;
+            }
+            else {
+
+              NAME[j] = tools.KeyLayout[tempName[j]];
+            }
+
+            searchRes += String(SEARCH[j]);
+          }
+
+          SearchResults[i] = searchRes;
+
+          GLCD.setColor(VGA_SCR_BACK);
+          GLCD.fillRect(X + 25, headerSize + innerBuff + outerBuff + 25 * i, X + searchBar + 25, headerSize + innerBuff + outerBuff + 20 + 25 * i);
+          GLCD.setColor(VGA_BLACK);
+          GLCD.print(searchRes, X + 30, headerSize + innerBuff + outerBuff + 4 + 25 * i);
+
+          searchRes = String("");
+          nameRes = String("");
+
+          for (j = 0; j < sizeDB; j++) {
+
+            SEARCH[j] = NULL;
+          }
+        }
+      }
+
+      else if (sel == 2 && cnt <= sizeDB) {
+
+        cnt--;
+
+        if (cnt < 0) {
+
+          cnt = 0;
+        }
+
+        Name[cnt] = NULL;
+        tempName[cnt] = NULL;
+
+        GLCD.setColor(VGA_SCR_BACK);
+        GLCD.fillRect(keys.searchBar.get(0), keys.searchBar.get(1), keys.searchBar.get(2), keys.searchBar.get(3));
+        GLCD.setColor(VGA_BLACK);
+
+        for (i = 0; i < cnt; i++) {
+
+          GLCD.print(Name[i], X + 5 + 8 * i, Y - 21);
+          NAME[i] = tools.KeyLayout[tempName[i]];
+        }
+
+        for (i = 0; i < query; i++) {
+
+          sd.search(databaseID, NAME, SEARCH, cnt, i);
+
+          for (j = 0; j < sizeDB; j++) {
+
+            if (tempName[j] == NULL) {
+
+              NAME[j] = NULL;
+            }
+            else {
+
+              NAME[j] = tools.KeyLayout[tempName[j]];
+            }
+
+            searchRes += String(SEARCH[j]);
+          }
+
+          SearchResults[i] = searchRes;
+
+          GLCD.setColor(VGA_SCR_BACK);
+          GLCD.fillRect(X, Y - 130 + i * 25, X + 210, Y - 110 + i * 25);
+          GLCD.setColor(VGA_BLACK);
+          GLCD.print(searchRes, X + 5, Y - 126 + i * 25);
+
+          searchRes = String("");
+
+          for (j = 0; j < sizeDB; j++) {
+
+            SEARCH[j] = NULL;
+          }
+        }
+      }
+
+      if (holdShift == 2) {
+
+        holdShift = 0;
+
+        holdCap = 0;
+
+        for (i = 0; i < button.arrSize; i++) {
+
+          button.text.set(i, keys.textLow.get(i));
+        }
+
+        tools.writeButton(&button);
+      }
+
+      if (sel == 39 || sel == 42 || cnt == 0) {
+
+        keys.shift  = 1;
+        holdShift   = 1;
+      }
+    }
+
+    sel = NULL;*/
 }
 
 void initBox() {
