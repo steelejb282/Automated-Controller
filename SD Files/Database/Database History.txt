@@ -1,7 +1,20 @@
 Database					Last Update					Game Era
 
-Pokedex					5 Nov 2015					ORAS
-Ability					15 Nov 2015					ORAS
-Attack					20 Feb 2016					ORAS
-Item						20 Feb 2016					ORAS
-Nature					20 Feb 2016					ORAS
+Pokedex					7 Mar 2016					ORAS
+Ability					7 Mar 2016					ORAS
+Attack					7 Mae 2016					ORAS
+Item						7 Mar 2016					ORAS
+Nature					7 Mar 2016					ORAS
+APokedex				7 Mar 2016					ORAS
+
+
+7 Mar 2016
+
+-Added APokédex, a database similar to Pokédex, but alphabetized by name for ease of organization.
+	It was deemed as necessary to have both an alphabetized and an ordered Pokédex database, as each 	
+	organization method will have it’s uses.  However, over eighty seconds was needed to retrieve a search 
+	with fifty results, and to convert it to the other system.  The addition of APokédex was designed to 
+	bypass this process entirely.
+-Added a neutral option to both Pokédex and APokédex.
+-Alphabetized Ability, Attack, Item, and Nature.  These databases are less ordered, and so alphabetization was
+	for the best.
