@@ -43,7 +43,8 @@
 #define OPEN            0
 #define CLOSE           1
 
-#define headerSize      15
+#define headerSize      25
+#define footerSize      15
 #define standBuff       5
 #define innerBuff       10
 #define outerBuff       10
@@ -80,22 +81,16 @@ typedef struct{
     LinkedList<char*>   textLow;
     LinkedList<char*>   textHigh;
     
-    LinkedList<int>     posX;
-    LinkedList<int>     posY;
-    LinkedList<int>     sizeX;
-    LinkedList<int>     sizeY;
-    
-    LinkedList<int>     state;
-    LinkedList<int>     font;
-    LinkedList<int>     textSize;
-    LinkedList<int>     textPos;
-    
-    byte                arrSize;
-    byte                caps;
+    LinkedList<int>     searchBar;
+    byte                holdShift;
     byte                shift;
     
     int                 anchorX;
     int                 anchorY;
+    int                 keyboardX;
+    int                 keyboardY;
+    
+    int                 scrOpen;
 } keyboard;
 
 extern uint8_t SmallFont[];
@@ -106,28 +101,23 @@ class ToolBox{
 public:
     
     ToolBox();
-    int getX();
-    int getY();
-    void clearButtonList();
-    keyboard initKeyboard(int anchorX,int anchorY);
+    int         getX();
+    int         getY();
+    void        clearButtonList();
+    void        initKeyboard(keyboard* keys,pushButton* button);
     
     // Menu Interfacing
     
-    void initMenuSetup(int size);
-    void displayColor(pushButton* info,int values[]);
+    void        initMenuSetup(int size);
+    void        displayColor(pushButton* info,int values[]);
     
     // Header and Transition control
-    void    header();
-    void    footer(int opening,int direction=CLOSE);
+    void        header();
+    void        footer(int opening,int direction=CLOSE);
     
     // Button Control
-    void    writeButton(pushButton* info);
-    void    writeButtonPress(int posX,int posY,int sizeX,int sizeY,int Press);
-    
-    char KeyLayout[40] = {  '1','2','3','4','5','6','7','8','9','0',
-                            'A','B','C','D','E','F','G','H','I','J',
-                            'K','L','M','N','O','P','Q','R','S','T',
-                            'U','V','W','X','Y','Z','.','`','-',' '};
+    void        writeButton(pushButton* info);
+    void        writeButtonPress(int posX,int posY,int sizeX,int sizeY,int Press);
     
 private:
     

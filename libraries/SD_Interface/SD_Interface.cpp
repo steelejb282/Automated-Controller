@@ -18,58 +18,6 @@ SD_Interface::SD_Interface(){
 // Information to be called from the bootup of the program
 //
 
-void SD_Interface::Test(char* part1){
-    
-    //String title = String("ORAS_BOX_") + String(part1) + String(".txt");
-    String title = String("ORAS_Box/Box")+String(part1)+String(".txt");
-    
-    myFile = SD.open(title,FILE_WRITE);
-    myFile.println("GO");
-    myFile.close();
-    
-    /*int temp;
-    
-    //String title = String(part1)+String(part2);
-    String title = String(part1) + String(part2);
-    
-    myFile = SD.open(title,FILE_READ);
-    altFile = SD.open("temp.txt",FILE_WRITE);
-    
-    while (myFile.available()){
-        
-        temp = myFile.read();
-        
-        if (temp == '0'){
-            
-            altFile.write("B");
-        }
-        else{
-            
-            altFile.write(temp);
-        }
-    }
-    
-    myFile.close();
-    altFile.close();
-    
-    SD.remove("Test.txt");
-    
-    myFile = SD.open("Test.txt",FILE_WRITE);
-    altFile = SD.open("temp.txt",FILE_READ);
-    
-    while (altFile.available()){
-        
-        temp = (altFile.read());
-        
-        myFile.write(temp);
-    }
-    
-    myFile.close();
-    altFile.close();
-    
-    SD.remove("temp.txt");*/
-}
-
 int SD_Interface::Masuda(int type) {
     
     // MasudaRead is used to store the number of eggs that have been hatched under the pretense
@@ -93,7 +41,7 @@ int SD_Interface::Masuda(int type) {
     }
     else {
         
-        //Serial.println("SD Card could not be found.");
+        return -999;
     }
     
     myFile.close();
@@ -205,147 +153,159 @@ void SD_Interface::GameList(int list[],int size,int type){
 // Functions designed to read and interpret the stored databases
 //
 
-void SD_Interface::search(int databaseID,char* Name,char* store,int pos,int skip){
+void SD_Interface::search(database* Data) {
     
-    //  Foreward...
+    //
+    // This function, search, is designed to accept the entry of a database identifier, as well as
+    // a search query.  This function will open the desired database, and search it for words that
+    // start with the input query list.  These lists will be concatenated into strings which, along
+    // with their corresponding identifiers for later consultation, will be added to a linked list
+    // provided within the given structure.
+    //
+    // This function should be used with a keyboard, to allow for the user to insert search queries,
+    // and find the information corresponding to their desired search.
+    //
+    // At some point in the future, this functino should be altered, such that search queries that
+    // begin with '*' will search for the query anywhere within the word.
+    //
     
-    int   Cap = 1;
-    int   End = 0;
+    process sort;
     
-    char  temp;
+    int     nameMod,            // Modifier to search name - some databases are buffered in name size
+            wordSize;           // The size of the resulting word in the search
     
-    int   compCnt = 0;
+    int     Cap         = 1;    // A marker for capitalizing the results in appropriate locations
+    int     compCnt     = 0;    // Counter for comparing query to database
+    int     IDmod       = 2;    // Modifier to the size of of the identification code
+    int     start       = 3;    // Start position of the word in the database
     
-    int   SD_NAME_CNT;
+    String tempInput    = String("");   // Used to convert the input string list into a char array
+    String tempID       = String("");   // Used to convert the search results to a string
+    String tempResult   = String("");   // Used to concert the search id to a string
     
-    int   start = 3;
-    int   sizeDB;
-    int   sizeName;
-    char* database;
-    int   nameMod;
-    
-    switch(databaseID){
+    // Use the database ID to open the database, and retrieve sizes, and pertinate modifiers
+    switch (Data->ID) {
             
         case POKEDEX_ID:
             myFile = SD.open(POKEDEX, FILE_READ);
-            sizeName = POKEDEX_NAME;
-            sizeDB = POKEDEX_SIZE;
-            start = 4;
-            nameMod = 0;
-            break;
+            sort.sizeWord = POKEDEX_NAME;
+            sort.sizeDB   = POKEDEX_SIZE;
+            start   = 4;                                // Starting position of the word
+            nameMod = 0;                                // Word size modification
+            IDmod   = 3;                                // Size of the identifier
         case ABILITY_ID:
             myFile = SD.open(ABILITY, FILE_READ);
-            sizeName = ABILITY_NAME;
-            sizeDB = ABILITY_SIZE;
-            nameMod = 0;
+            sort.sizeWord = ABILITY_NAME;
+            sort.sizeDB   = ABILITY_SIZE;
+            nameMod = 0;                                // Word size modification
             break;
         case ATTACK_ID:
             myFile = SD.open(ATTACK, FILE_READ);
-            sizeName = ATTACK_NAME;
-            sizeDB = ATTACK_SIZE;
-            nameMod = 1;
+            sort.sizeWord = ATTACK_NAME;
+            sort.sizeDB   = ATTACK_SIZE;
+            nameMod = 1;                                // Word size modification
             break;
         case ITEM_ID:
             myFile = SD.open(ITEM, FILE_READ);
-            sizeName = ITEM_NAME;
-            sizeDB = ITEM_SIZE;
-            nameMod = 1;
+            sort.sizeWord = ITEM_NAME;
+            sort.sizeDB   = ITEM_SIZE;
+            nameMod = 1;                                // Word size modification
             break;
         case NATURE_ID:
             myFile = SD.open(NATURE, FILE_READ);
-            sizeName = NATURE_NAME;
-            sizeDB = NATURE_SIZE;
-            nameMod = 0;
+            sort.sizeWord = NATURE_NAME;
+            sort.sizeDB   = NATURE_SIZE;
+            nameMod = 0;                                // Word size modification
+            break;
+        default:    // APokedex_ID
+            myFile = SD.open(APOKEDEX, FILE_READ);
+            sort.sizeWord = APOKEDEX_NAME;
+            sort.sizeDB   = APOKEDEX_SIZE;
+            start   = 4;                                // Starting position of the word
+            nameMod = 0;                                // Word size modification
+            IDmod   = 3;                                // Size of the identifier
             break;
     }
     
-    char  SD_IMPORT[sizeDB];
+    // Create a temporary storage array for each entry into the database
+    char  SD_IMPORT[sort.sizeDB];
+    char  input[sort.sizeWord];
+    
+    // Define the size of the input query for later comparison
+    sort.inWordSize = Data->wordInput.size();
+    
+    // Clear the outputs to avoid cross-contamination
+    Data->SearchID.clear();
+    Data->Result.clear();
+    
+    // Convert the input string list into a char array for comparative purposes
+    for (i = 0; i < sort.inWordSize; i++) tempInput += Data->wordInput.get(i);
+    
+    tempInput.toCharArray(input, sort.inWordSize);
+    
+    for (i = 0; i < sort.inWordSize; i++) {
+        if (tempInput[i] >= 'a' && tempInput[i] <= 'z') tempInput[i] -= 'a' - 'A';
+        sort.lineSearch.add(String(tempInput[i]));
+    }
     
     if (myFile) {
         
         while (myFile.available()) {
             
-            for (i = 0; i < sizeDB; i++) {
-                
-                SD_IMPORT[i] = myFile.read();
-            }
+            if (sort.inWordSize == 0) break;
             
-            for (i=0;i<pos;i++){
-                
-                if (Name[i] == SD_IMPORT[i+start]){
-                    
-                    compCnt++;
-                }
-            }
+            // Pull each item in the data base for analysis
+            //
+            for (i = 0; i < sort.sizeDB; i++) SD_IMPORT[i] = myFile.read();
             
-            if (pos == 0){
-                
-                for (i=0;i<sizeName;i++){
-                    
-                    store[i] = NULL;
-                }
-                
-                store[0] = '-';
-                
-                return;
-            }
+            // Compare the stored word with the converted query, incrementing compCnt to use
+            // as an identifier for a match
+            //
+            for (i = 0; i < sort.inWordSize; i++) if (String(SD_IMPORT[i + start]) == sort.lineSearch.get(i)) compCnt++;
             
-            if (compCnt == pos){
+            // If compCnt is the same size as the query, move on to storing the needed information
+            // from the line
+            //
+            if (compCnt == sort.inWordSize) {
                 
-                if (skip == 0){
-                    
-                    if (SD_IMPORT[start-1] >= 'A'){
-                        
-                        SD_NAME_CNT = SD_IMPORT[start-1]-'A'+10;
+                // Retreive the size of the word stored in the given line.  The stored size will need to be converted from hexadecimal characters to decimal integers.  As 'A'-'F' follow the decimal values, a modifier of 10 will need to be added to the result for accuracy
+                
+                // nameMod is included as some databases have altered word sizes for the sake of ease in storage
+                wordSize = SD_IMPORT[IDmod];
+                
+                if (wordSize >= 'A') wordSize += 10 + nameMod - 'A';
+                else wordSize += nameMod - '0';
+                
+                // Retrieve the actual word from the line by adding each character of the word from the stored line into Data->lineStorage.  Follow this by converting the word from all capslock to a more standard grammatical form, and storing the results into Data->wordStorage
+                for (i = 0; i < wordSize; i++) sort.wordStorage.add(SD_IMPORT[i + start]);
+                
+                for (i = 0; i < wordSize; i++) {
+                    if (Cap) {
+                        sort.wordStorage.set(i, SD_IMPORT[i + start]);
+                        Cap = 0;
                     }
-                    else{
-                        
-                        SD_NAME_CNT = SD_IMPORT[start-1]-'0';
-                    }
+                    else if (sort.wordStorage.get(i) >= 'A' && sort.wordStorage.get(i) <= 'Z') sort.wordStorage.set(i, SD_IMPORT[i + start] - 'A' + 'a');
+                    else sort.wordStorage.set(i, SD_IMPORT[i + start]);
                     
-                    SD_NAME_CNT += nameMod;
-                    
-                    //SD_NAME_CNT = SD_IMPORT[start-1]  - '0';      //  (b)
-                
-                    for (i = 0; i < SD_NAME_CNT; i++) {
-                    
-                        if (Cap) {
-                        
-                            store[i] = SD_IMPORT[i + start];
-                        
-                            Cap = 0;
-                        }
-                        else if (SD_IMPORT[i + start] >= 'A' && SD_IMPORT[i + start] <= 'Z') {
-                        
-                            temp = SD_IMPORT[i + start] + 32;
-                        
-                            store[i] = temp;
-                        }
-                        else {
-                        
-                            store[i] = SD_IMPORT[i + start];
-                        }
-                    
-                        if (SD_IMPORT[i + start] == '-' || SD_IMPORT[i + start] == ' ') {
-                        
-                            Cap = 1;
-                        }
-                    }
-
-                    break;
-                }
-                else{
-                    
-                    skip--;
+                    if (sort.wordStorage.get(i) == '-' || sort.wordStorage.get(i) == '.' || sort.wordStorage.get(i) == ' ') Cap = 1;
                 }
                 
-            }
-            else{
+                // Retrieve the identification code for the line, for later access and retrieval of additional information stored in the line
+                for (i = 0; i < IDmod; i++) tempID += String(SD_IMPORT[i]);
+                Data->SearchID.add(tempID);
                 
-                store[0] = '-';
+                // Convert Data->wordStorage into a string, and add it to the list of search results
+                for (i = 0; i < wordSize; i++) tempResult += String(sort.wordStorage.get(i));
+                Data->Result.add(tempResult);
             }
             
+            // Reset the accounting variables and storage spaces for the next round of searching, and
+            // move to the next line
+            sort.wordStorage.clear();
+            tempID = String("");
+            tempResult = String("");
             compCnt = 0;
+            Cap = 1;
             
             myFile.read();
         }
@@ -359,6 +319,42 @@ void SD_Interface::search(int databaseID,char* Name,char* store,int pos,int skip
         // Place the "Missing SD" notice on the board
     }
 }
+
+// ***
+// ***
+// ***
+//
+// The designs of pokedexRead, abilityRead, attackRead, natureRead, and item read are all obsolete.
+// When I get to the point where I'm displaying specific pokémon or information, all of these functions
+// are to be combined into one single function that handles the same affects and outputs.
+//
+// ***
+// ***
+// ***    // Hatch Total Read/Write
+    
+    //
+    // Database Manipulation
+    //
+    //
+    // void        search(database* Data);
+    //
+    // void        pokedexRead(char* Name,int NumSel = 1);
+    // void        abilityRead(char ABIL_HEX_0,char ABIL_HEX_1,char* Ability);
+    // void        attackRead(char ATK_HEX_0,char ATK_HEX_1,char* Attack);
+    // int         itemRead(char ITEM_HEX_0,char ITEM_HEX_1,char* Item);
+    // void        natureRead(char ITEM_NATR_0,char ITEM_NATR_1,char* Nature,int* NatRet);
+    //
+    // Breed History
+    // Parent History
+    // Parent Directory
+    // Box Manipulation
+    // Image Retrieval
+    
+    //
+    // Interface Retrievals
+    //
+    
+    //void pokemonInfoRead(int Num,char* Pokemon[],char* PrimeAbil[],char* SecondAbil[],char* HiddenAbil
 
 void SD_Interface::pokedexRead(char* Name,int NumSel) {
     

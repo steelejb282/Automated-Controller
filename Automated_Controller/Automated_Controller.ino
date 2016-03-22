@@ -9,6 +9,9 @@
 #include <SPI.h>
 #include <SD.h>
 
+#include <Wire.h>
+#include "Sodaq_DS3231.h"
+
 char    Pokemon[11];
 
 char    PrimeAbil[14];
@@ -33,6 +36,13 @@ ToolBox                 tools;
 
 File file;
 
+uint8_t tempMin;
+uint8_t hr;
+int hold = 1;
+int holdTime = 1;
+
+DateTime Time;
+
 void setup() {
 
   Serial.begin(9600);
@@ -42,124 +52,244 @@ void setup() {
 
   TFT_X = tools.getX();
   TFT_Y = tools.getY();
+
+  Wire.begin();
+  rtc.begin();
 }
 
 void loop() {
 
-  //initMenu();
+  /*database Data;
 
-  searchDatabase(APOKEDEX_ID, 3);
+    Data.ID = APOKEDEX_ID;
+
+    Data.wordInput.add(String("G"));
+
+    sd.search(&Data);
+
+    for (i=0;i<Data.SearchID.size();i++){
+    Serial.print(Data.SearchID.get(i));
+    Serial.print(" ");
+    Serial.println(Data.Result.get(i));
+    }*/
+
+  initMenu();
+
+  //search();
 
   while (1);
 }
 
-void searchDatabase(int databaseID, int query) {
+void search() {
 
-  database data;
-
-  data.ID = databaseID;
-
-  //
-  // searchDatabase is designed to allow for the user to specifically seek out an item stored in one of the onboard databases.
-  //
-
-  int scrOpen;
   int sel;
-  int capType   = 0;
-  int holdCap   = 1;
-  int holdShift = 1;
-  int cnt       = 0;
-  int X;
-  int Y;
-  int anchor;
-  int img       = 0;
-  int sizeDB;
-  int nameDB;
+  int touchX;
+  int touchY;
 
-  if (query < 1 || query > 3) {
-    if (query < 1) {
-      query = 1;
-    }
-    else {
-      query = 3;
-    }
-  }
+  int choice = -1;
+  int holdChoice = 1;
 
-  anchor = query * 25 + 40;
+  keyboard keys;
+  pushButton button;
+  database Data;
 
-  switch (databaseID) {
-    case POKEDEX_ID:
-      sizeDB = POKEDEX_NAME;
-      img    = 1;
-      break;
-    case ABILITY_ID:
-      sizeDB = ABILITY_NAME;
-      break;
-    case ATTACK_ID:
-      sizeDB = ATTACK_NAME;
-      break;
-    case ITEM_ID:
-      sizeDB = ITEM_NAME;
-      break;
-    case NATURE_ID:
-      sizeDB = NATURE_NAME;
-      break;
-  }
-
-  char*  Name[sizeDB];
-  char*  Search[query][sizeDB];
-  char   NAME[11];
-  char   SEARCH[11];
-  int    tempName[sizeDB];
-  String nameRes;
-  String searchRes;
-  String SearchResults[query];
-  int searchBar = sizeDB * 8 + 10;
-
-  for (i = 0; i < sizeDB; i++) {
-    tempName[i] = NULL;
-    SEARCH[i] = NULL;
-  }
+  Data.ID = APOKEDEX_ID;
 
   GLCD.setBackColor(VGA_SCR_BACK);
   GLCD.setFont(SmallFont);
-  pushButton  button;
-  keyboard    keys = tools.initKeyboard(anchor);
-  button.arrSize = keys.arrSize;
-  scrOpen        = keys.scrOpen;
-  X              = keys.anchorX;
-  Y              = keys.anchorY;
 
-  for (i = 0; i < button.arrSize; i++) {
+  tools.initKeyboard(&keys, &button);
 
-    button.text.add(keys.textHigh.get(i));
-    button.posX.add(keys.posX.get(i));
-    button.posY.add(keys.posY.get(i));
-    button.sizeX.add(keys.sizeX.get(i));
-    button.sizeY.add(keys.sizeY.get(i));
-    button.state.add(keys.state.get(i));
-    button.font.add(keys.font.get(i));
-    button.textSize.add(keys.textSize.get(i));
-    button.textPos.add(keys.textPos.get(i));
-  }
-  tools.footer(scrOpen - 5, OPEN);
-  tools.initMenuSetup(scrOpen);
-  GLCD.setColor(VGA_SCR_BACK);
-  GLCD.fillRect(keys.searchBar.get(0), keys.searchBar.get(1), keys.searchBar.get(2), keys.searchBar.get(3));
+  /*for(i=0;i<4;i++){
+    output.text.add("-");
+    output.sizeX.add(keys.searchBar.get(2)-keys.searchBar.get(0));
+    output.sizeY.add(20);
+    output.posX.add(keys.searchBar.get(0));
+    output.posY.add(headerSize+outerBuff+innerBuff-1+i*output.sizeY.get(i));
+    output.state.add(LIVE);
+    output.font.add(SMALL);
+    output.textSize.add(strlen(output.text.get(i)));
+    output.textPos.add(MID_CENTER);
+    }*/
 
-  if (img) {
-
-    // Leave this for now.  Return when a larger LCD is available, and plot out image inclusion
-  }
-  for (i = 0; i < query; i++) {
-
-    GLCD.setColor(VGA_SCR_BACK);
-    GLCD.fillRect(X + 25, headerSize + innerBuff + outerBuff + 25 * i, X + searchBar + 25, headerSize + innerBuff + outerBuff + 20 + 25 * i);
-    GLCD.setColor(VGA_BLACK);
-    GLCD.print("-", X + 30, headerSize + innerBuff + outerBuff + 4 + 25 * i);
-  }
+  tools.footer(keys.scrOpen - 5, OPEN);
+  tools.initMenuSetup(keys.scrOpen + 10);
   tools.writeButton(&button);
 
+  GLCD.setColor(VGA_SCR_BACK);
+  GLCD.fillRoundRect(keys.searchBar.get(0), keys.searchBar.get(1), keys.searchBar.get(2), keys.searchBar.get(3));
+  for (i = 0; i < 4; i++) {
+    GLCD.fillRoundRect(keys.searchBar.get(0), 44 + i * 25, keys.searchBar.get(2), 64 + i * 25);
+    GLCD.setColor(VGA_BLACK);
+    GLCD.print(String("-"), keys.searchBar.get(0) + 4, 48 + i * 25);
+    GLCD.setColor(VGA_SCR_BACK);
+  }
+  //GLCD.fillRoundRect(keys.searchBar.get(2) + 6, 62, keys.searchBar.get(2) + 66, 122);
+
+  while (1) {
+
+    sel = readButton(&button);
+
+    if (sel <= 3) {
+
+      switch (sel) {
+
+        case 0:     // Enter
+          break;
+        case 1:     // Clear
+          choice = -1;
+          holdChoice = 1;
+          
+          Data.wordInput.clear();
+
+          if (button.state.get(4) == DEAD) {
+            for (i = 4; i < button.arrSize; i++) button.state.set(i, LIVE);
+            tools.writeButton(&button);
+          }
+
+          keys.shift = 1;
+          for (i = 0; i < button.arrSize; i++) button.text.set(i, keys.textHigh.get(i));
+          tools.writeButton(&button);
+
+          GLCD.fillRoundRect(keys.searchBar.get(0), keys.searchBar.get(1), keys.searchBar.get(2), keys.searchBar.get(3));
+
+          for (i = 0; i < 4; i++) {
+            GLCD.fillRoundRect(keys.searchBar.get(0), 44 + i * 25, keys.searchBar.get(2), 64 + i * 25);
+            GLCD.setColor(VGA_BLACK);
+            GLCD.print(String("-"), keys.searchBar.get(0) + 4, 48 + i * 25);
+            GLCD.setColor(VGA_SCR_BACK);
+          }
+          break;
+        case 2:     // Shift
+          keys.shift = !keys.shift;
+
+          switch (keys.shift) {
+            case 0:
+              for (i = 0; i < button.arrSize; i++) button.text.set(i, keys.textLow.get(i));
+              break;
+            case 1:
+              for (i = 0; i < button.arrSize; i++) button.text.set(i, keys.textHigh.get(i));
+              break;
+          }
+
+          tools.writeButton(&button);
+          break;
+        case 3:     // Delete
+          choice = -1;
+          holdChoice = 1;
+          
+          if (Data.wordInput.size() > 0) {
+            Data.wordInput.pop();
+
+            if (button.state.get(4) == DEAD) {
+              for (i = 4; i < button.arrSize; i++) button.state.set(i, LIVE);
+              tools.writeButton(&button);
+            }
+
+            GLCD.fillRoundRect(keys.searchBar.get(0), keys.searchBar.get(1), keys.searchBar.get(2), keys.searchBar.get(3));
+            GLCD.setColor(VGA_BLACK);
+            for (i = 0; i < Data.wordInput.size(); i++) GLCD.print(Data.wordInput.get(i), keys.searchBar.get(0) + 4 + 8 * i, keys.searchBar.get(1) + 4);
+            GLCD.setColor(VGA_SCR_BACK);
+
+            sd.search(&Data);
+
+            for (i = 0; i < 4; i++) {
+              GLCD.fillRoundRect(keys.searchBar.get(0), 44 + i * 25, keys.searchBar.get(2), 64 + i * 25);
+              GLCD.setColor(VGA_BLACK);
+              if (i >= Data.Result.size()) GLCD.print(String("-"), keys.searchBar.get(0) + 4, 48 + i * 25);
+              else GLCD.print(Data.Result.get(i), keys.searchBar.get(0) + 4, 48 + i * 25);
+              GLCD.setColor(VGA_SCR_BACK);
+            }
+          }
+          if (Data.wordInput.size() == 0) {
+            keys.shift = 1;
+            for (i = 0; i < button.arrSize; i++) button.text.set(i, keys.textHigh.get(i));
+            tools.writeButton(&button);
+          }
+          break;
+      }
+    }
+    else {
+
+      if (Data.wordInput.size() < 11) {
+        choice = -1;
+        holdChoice = 1;
+
+        Data.wordInput.add(String(button.text.get(sel)));
+
+        if (keys.shift) {
+          keys.shift = 0;
+          for (i = 0; i < button.arrSize; i++) button.text.set(i, keys.textLow.get(i));
+          tools.writeButton(&button);
+        }
+
+        GLCD.fillRoundRect(keys.searchBar.get(0), keys.searchBar.get(1), keys.searchBar.get(2), keys.searchBar.get(3));
+        GLCD.setColor(VGA_BLACK);
+        for (i = 0; i < Data.wordInput.size(); i++) GLCD.print(Data.wordInput.get(i), keys.searchBar.get(0) + 4 + 8 * i, keys.searchBar.get(1) + 4);
+        GLCD.setColor(VGA_SCR_BACK);
+
+        sd.search(&Data);
+
+        for (i = 0; i < 4; i++) {
+          GLCD.fillRoundRect(keys.searchBar.get(0), 44 + i * 25, keys.searchBar.get(2), 64 + i * 25);
+          GLCD.setColor(VGA_BLACK);
+          if (i >= Data.Result.size()) GLCD.print(String("-"), keys.searchBar.get(0) + 4, 48 + i * 25);
+          else GLCD.print(Data.Result.get(i), keys.searchBar.get(0) + 4, 48 + i * 25);
+          GLCD.setColor(VGA_SCR_BACK);
+        }
+      }
+      if (Data.wordInput.size() == 11) {
+        for (i = 4; i < button.arrSize; i++) button.state.set(i, DEAD);
+        tools.writeButton(&button);
+      }
+    }
+
+    if (myTouch.dataAvailable()) {
+
+      myTouch.read();
+
+      touchX = myTouch.getX();
+      touchY = myTouch.getY();
+
+      if (touchX >= keys.searchBar.get(0) && touchX <= keys.searchBar.get(2)) {
+        if (touchY >= headerSize + outerBuff + innerBuff - 1 && touchY <= headerSize + outerBuff + innerBuff + 94) {
+
+          for (i = 0; i < 4; i++) {
+            GLCD.fillRoundRect(keys.searchBar.get(0), 44 + i * 25, keys.searchBar.get(2), 64 + i * 25);
+            GLCD.setColor(VGA_BLACK);
+            if (i >= Data.Result.size()) GLCD.print(String("-"), keys.searchBar.get(0) + 4, 48 + i * 25);
+            else GLCD.print(Data.Result.get(i), keys.searchBar.get(0) + 4, 48 + i * 25);
+            GLCD.setColor(VGA_SCR_BACK);
+          }
+          
+          if (touchY <= headerSize + outerBuff + innerBuff + 19) {
+            choice = 0;
+            holdChoice = 1;
+          }
+          else if (touchY >= headerSize + outerBuff + innerBuff + 24 && touchY <= headerSize + outerBuff + innerBuff + 44) {
+            choice = 1;
+            holdChoice = 1;
+          }
+          else if (touchY >= headerSize + outerBuff + innerBuff + 49 && touchY <= headerSize + outerBuff + innerBuff + 69) {
+            choice = 2;
+            holdChoice = 1;
+          }
+          else if (touchY >= headerSize + outerBuff + innerBuff + 74) {
+            choice = 3;
+            holdChoice = 1;
+          }
+        }
+      }
+    }
+
+    if (holdChoice){
+
+      if (choice = -1) GLCD.fillRoundRect(keys.searchBar.get(2) + 6, 62, keys.searchBar.get(2) + 66, 122);
+      else{
+        
+      }
+    }
+  }
 }
 
 void initBox() {
@@ -173,7 +303,8 @@ void initMenu() {
 
   delay(500);
 
-  mainMenu();
+  //mainMenu();
+  search();
 }
 void mainMenu() {
 
@@ -254,21 +385,21 @@ void routineMenu() {
 
   mainMenu();
 
-  /*
-      Z - Dead
-      ORAS
-      XY
-      RBGY - Dead
-  */
 
-  /*
-     Breed
-     Release
-     Basic Analysis
-     Advanced Analysis
-     EV Train
-     Soft Reset
-  */
+  //    Z - Dead
+  //    ORAS
+  //    XY
+  //    RBGY - Dead
+
+
+
+  //   Breed
+  //   Release
+  //   Basic Analysis
+  //   Advanced Analysis
+  //   EV Train
+  //   Soft Reset
+
 }
 
 void toolMenu() {
@@ -781,29 +912,7 @@ void passwordManageMenu() {
 
 }
 
-/*
-    Radio Button (circle):
-    input:
-      pos[x][y],
-      sizes[x][y]
-      char* array[numValueY][numValueX],
-      buffer[x][y] (space between outer limits of array items)
-    initiate array[size] within function, and place preconstructed buttons according to pos and buffer.  set all cells within array to zero, then set the first
-    cell to 1.
-    the cell to hold one is signified on screen, and the rest are zero.  if another button is pressed within the array, run through the array, set temp to x,y,
-    set previous value to zero, and set temp to one.  change the screen to reflect
-    Switch Button (square):
-    formatted the same way as the radio button, the switch button allows for multiple buttons to be toggled on and off within the array, as opposed to just one.
-    Switch:
-    operates as a radio button limited to two or three values and different imagery.
-    Slide:
-    read the bar for the lengthwise value and compare it to the diminsions of the bar.  map this to the array of values which the slide is tied to.  snap to
-    appropriate position after slider is released. (Lists)
-    needed icons:
-    male-female-genderless
-    arrows
-    miniature pushbuttons (increase/decrease egg or party count mid operation, for example)
-*/
+
 /*
   //
   // TEMPLATE FOR MENU CREATION
@@ -820,16 +929,16 @@ void passwordManageMenu() {
   button.text.add("Settings");
   button.arrSize = button.text.size();
   for (i = 0; i < button.arrSize; i++) {
-    // General initializations
-    button.sizeX.add(TFT_X - 2 * (innerBuff + outerBuff) - 1);
-    button.sizeY.add(30);
-    button.posX.add(screenBuff - 1);
-    button.posY.add(screenBuff + headerSize + (button.sizeY.get(i) + buff)*i - 1);
-    button.state.add(LIVE);
-    button.font.add(SMALL);
-    button.textSize.add(strlen(button.text.get(i)));
-    button.textPos.add(MID_CENTER);
-    scrOpen += (button.sizeY.get(i) + buff);
+  // General initializations
+  button.sizeX.add(TFT_X - 2 * (innerBuff + outerBuff) - 1);
+  button.sizeY.add(30);
+  button.posX.add(screenBuff - 1);
+  button.posY.add(screenBuff + headerSize + (button.sizeY.get(i) + buff)*i - 1);
+  button.state.add(LIVE);
+  button.font.add(SMALL);
+  button.textSize.add(strlen(button.text.get(i)));
+  button.textPos.add(MID_CENTER);
+  scrOpen += (button.sizeY.get(i) + buff);
   }
   // Complex initializations
   button.sizeY.set(0, 60);
@@ -844,21 +953,21 @@ void passwordManageMenu() {
   tools.writeButton(&button);
   // Initiate Touch
   while (1) {
-    sel = readButton(&button);
-    delay(200);
-    tools.footer(CLOSE);
-    delay(500);
-    switch (sel) {
-      case 0:
-        mainMenu();//routineMenu();
-        break;
-      case 1:
-        mainMenu();//toolMenu();
-        break;
-      case 2:
-        mainMenu();//settingMenu();
-        break;
-    }
+  sel = readButton(&button);
+  delay(200);
+  tools.footer(CLOSE);
+  delay(500);
+  switch (sel) {
+    case 0:
+      mainMenu();//routineMenu();
+      break;
+    case 1:
+      mainMenu();//toolMenu();
+      break;
+    case 2:
+      mainMenu();//settingMenu();
+      break;
+  }
   }
   }
 */

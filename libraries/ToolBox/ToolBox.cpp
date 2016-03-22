@@ -32,144 +32,150 @@ void ToolBox::clearButtonList(){
     button.textPos.clear();
 }
 
-keyboard ToolBox::initKeyboard(int anchorX,int anchorY){
+void ToolBox::initKeyboard(keyboard* keys,pushButton* button) {
     
-    keyboard keys;
+    keys->anchorX = 15;
+    keys->anchorY = 149;
     
-    keys.textLow.add(" Ent");
-    keys.textLow.add(" Caps");
-    keys.textLow.add(" Shft");
-    keys.textLow.add("Del ");
-    keys.textLow.add("1");
-    keys.textLow.add("2");
-    keys.textLow.add("3");
-    keys.textLow.add("4");
-    keys.textLow.add("5");
-    keys.textLow.add("6");
-    keys.textLow.add("7");
-    keys.textLow.add("8");
-    keys.textLow.add("9");
-    keys.textLow.add("0");
-    keys.textLow.add("a");
-    keys.textLow.add("b");
-    keys.textLow.add("c");
-    keys.textLow.add("d");
-    keys.textLow.add("e");
-    keys.textLow.add("f");
-    keys.textLow.add("g");
-    keys.textLow.add("h");
-    keys.textLow.add("i");
-    keys.textLow.add("j");
-    keys.textLow.add("k");
-    keys.textLow.add("l");
-    keys.textLow.add("m");
-    keys.textLow.add("n");
-    keys.textLow.add("o");
-    keys.textLow.add("p");
-    keys.textLow.add("q");
-    keys.textLow.add("r");
-    keys.textLow.add("s");
-    keys.textLow.add("t");
-    keys.textLow.add("u");
-    keys.textLow.add("v");
-    keys.textLow.add("w");
-    keys.textLow.add("x");
-    keys.textLow.add("y");
-    keys.textLow.add("z");
-    keys.textLow.add(".");
-    keys.textLow.add("`");
-    keys.textLow.add("-");
-    keys.textLow.add(" ");
+    keys->textLow.add("Enter");
+    keys->textLow.add("Clear");
+    keys->textLow.add("Shift");
+    keys->textLow.add("Delete");
+    keys->textLow.add("1");
+    keys->textLow.add("2");
+    keys->textLow.add("3");
+    keys->textLow.add("4");
+    keys->textLow.add("5");
+    keys->textLow.add("6");
+    keys->textLow.add("7");
+    keys->textLow.add("8");
+    keys->textLow.add("9");
+    keys->textLow.add("0");
+    keys->textLow.add("a");
+    keys->textLow.add("b");
+    keys->textLow.add("c");
+    keys->textLow.add("d");
+    keys->textLow.add("e");
+    keys->textLow.add("f");
+    keys->textLow.add("g");
+    keys->textLow.add("h");
+    keys->textLow.add("i");
+    keys->textLow.add("j");
+    keys->textLow.add("k");
+    keys->textLow.add("l");
+    keys->textLow.add("m");
+    keys->textLow.add("n");
+    keys->textLow.add("o");
+    keys->textLow.add("p");
+    keys->textLow.add("q");
+    keys->textLow.add("r");
+    keys->textLow.add("s");
+    keys->textLow.add("t");
+    keys->textLow.add("u");
+    keys->textLow.add("v");
+    keys->textLow.add("w");
+    keys->textLow.add("x");
+    keys->textLow.add("y");
+    keys->textLow.add("z");
+    keys->textLow.add(".");
+    keys->textLow.add("'");
+    keys->textLow.add("-");
+    keys->textLow.add(" ");
     
-    keys.textHigh.add(" Ent");
-    keys.textHigh.add(" Caps");
-    keys.textHigh.add(" Shft");
-    keys.textHigh.add("Del ");
-    keys.textHigh.add("1");
-    keys.textHigh.add("2");
-    keys.textHigh.add("3");
-    keys.textHigh.add("4");
-    keys.textHigh.add("5");
-    keys.textHigh.add("6");
-    keys.textHigh.add("7");
-    keys.textHigh.add("8");
-    keys.textHigh.add("9");
-    keys.textHigh.add("0");
-    keys.textHigh.add("A");
-    keys.textHigh.add("B");
-    keys.textHigh.add("C");
-    keys.textHigh.add("D");
-    keys.textHigh.add("E");
-    keys.textHigh.add("F");
-    keys.textHigh.add("G");
-    keys.textHigh.add("H");
-    keys.textHigh.add("I");
-    keys.textHigh.add("J");
-    keys.textHigh.add("K");
-    keys.textHigh.add("L");
-    keys.textHigh.add("M");
-    keys.textHigh.add("N");
-    keys.textHigh.add("O");
-    keys.textHigh.add("P");
-    keys.textHigh.add("Q");
-    keys.textHigh.add("R");
-    keys.textHigh.add("S");
-    keys.textHigh.add("T");
-    keys.textHigh.add("U");
-    keys.textHigh.add("V");
-    keys.textHigh.add("W");
-    keys.textHigh.add("X");
-    keys.textHigh.add("Y");
-    keys.textHigh.add("Z");
-    keys.textHigh.add(",");
-    keys.textHigh.add("?");
-    keys.textHigh.add("+");
-    keys.textHigh.add(" ");
+    keys->textHigh.add("Enter");
+    keys->textHigh.add("Clear");
+    keys->textHigh.add("Shift");
+    keys->textHigh.add("Delete");
+    keys->textHigh.add("1");
+    keys->textHigh.add("2");
+    keys->textHigh.add("3");
+    keys->textHigh.add("4");
+    keys->textHigh.add("5");
+    keys->textHigh.add("6");
+    keys->textHigh.add("7");
+    keys->textHigh.add("8");
+    keys->textHigh.add("9");
+    keys->textHigh.add("0");
+    keys->textHigh.add("A");
+    keys->textHigh.add("B");
+    keys->textHigh.add("C");
+    keys->textHigh.add("D");
+    keys->textHigh.add("E");
+    keys->textHigh.add("F");
+    keys->textHigh.add("G");
+    keys->textHigh.add("H");
+    keys->textHigh.add("I");
+    keys->textHigh.add("J");
+    keys->textHigh.add("K");
+    keys->textHigh.add("L");
+    keys->textHigh.add("M");
+    keys->textHigh.add("N");
+    keys->textHigh.add("O");
+    keys->textHigh.add("P");
+    keys->textHigh.add("Q");
+    keys->textHigh.add("R");
+    keys->textHigh.add("S");
+    keys->textHigh.add("T");
+    keys->textHigh.add("U");
+    keys->textHigh.add("V");
+    keys->textHigh.add("W");
+    keys->textHigh.add("X");
+    keys->textHigh.add("Y");
+    keys->textHigh.add("Z");
+    keys->textHigh.add(",");
+    keys->textHigh.add("?");
+    keys->textHigh.add("+");
+    keys->textHigh.add(" ");
     
-    keys.arrSize    = keys.textLow.size();
-    keys.shift      = 1;
-    keys.caps       = 0;
-    keys.anchorX    = anchorX;
-    keys.anchorY    = anchorY;
+    button->arrSize  = keys->textLow.size();      // Get the size of the keyboard
+    keys->shift      = 1;                         // Initiate with Shift on
+    keys->holdShift  = 0;                         // Initiate with shift lock on
+    keys->keyboardX  = keys->anchorX;             // Designate the x-position of the keyboard
+    keys->keyboardY  = keys->anchorY + 25;        // Designate the y-position of the keyboard
     
-    for (i = 0; i < keys.arrSize; i++) {
+    // Designate the placement of the search bar - current current default centers the bar.
+    keys->searchBar.add(keys->anchorX - 1);
+    keys->searchBar.add(keys->anchorY);
+    keys->searchBar.add(keys->anchorX+143);
+    keys->searchBar.add(keys->anchorY + 20);
+    
+    for (i = 0; i < button->arrSize; i++) {
         
-        keys.sizeX.add(20);
-        keys.sizeY.add(20);
-        keys.state.add(LIVE);
-        keys.font.add(SMALL);
-        keys.textSize.add(strlen(keys.textLow.get(i)));
-        keys.textPos.add(MID_CENTER);
+        button->text.add(keys->textHigh.get(i));
+        button->sizeX.add(20);                                 // Standard size - 20p
+        button->sizeY.add(20);                                 // Standard size - 20p
+        button->state.add(LIVE);                               // Set button as active
+        button->font.add(SMALL);                               // Set font as small
+        button->textSize.add(strlen(keys->textLow.get(i)));    // Sets placement
+        button->textPos.add(MID_CENTER);                       // Sets all buttons to center
     }
     
-    keys.sizeX.set(0, 51);
-    keys.sizeX.set(1, 52);
-    keys.sizeX.set(2, 51);
-    keys.sizeX.set(3, 51);
-    keys.posX.add(keys.anchorX+1);
-    keys.posX.add(keys.posX.get(0)+keys.sizeX.get(0)+1);
-    keys.posX.add(keys.posX.get(1)+keys.sizeX.get(1)+1);
-    keys.posX.add(keys.posX.get(2)+keys.sizeX.get(2)+1);
-    keys.posY.add(keys.anchorY);
-    keys.posY.add(keys.anchorY);
-    keys.posY.add(keys.anchorY);
-    keys.posY.add(keys.anchorY);
+    // Reset the size of the enter key
+    button->sizeX.set(0, 35);
+    // Reset the widths of the alterative buttons
+    button->sizeX.set(1, 69);
+    button->sizeX.set(2, 69);
+    button->sizeX.set(3, 69);
+    // Place the enter key
+    button->posX.add(keys->searchBar.get(2)+5);
+    button->posY.add(keys->searchBar.get(1));
+    // Place the alterative buttons
+    button->posX.add(keys->anchorX - 1);
+    button->posX.add(button->posX.get(1) + button->sizeX.get(1) + 1);
+    button->posX.add(button->posX.get(2) + button->sizeX.get(2) + 1);
+    button->posY.add(keys->keyboardY);
+    button->posY.add(keys->keyboardY);
+    button->posY.add(keys->keyboardY);
     
-    keys.textPos.set(0, MID_LEFT);
-    keys.textPos.set(1, MID_LEFT);
-    keys.textPos.set(2, MID_LEFT);
-    keys.textPos.set(3, MID_RIGHT);
-    
-    for (i = 0; i < 4; i++) {
-        
-        for (j = 0; j < 10; j++) {
+    for (i = 0; i < 4; i++) {           // Rows of descriptive buttons
+        for (j = 0; j < 10; j++) {      // Columns of descriptive buttons
             
-            keys.posX.add(anchorX + j * 21);
-            keys.posY.add(anchorY + 21 + i * 21);
+            button->posX.add(keys->keyboardX + j * 21 - 1);
+            button->posY.add(keys->keyboardY + 21 + i * 21);
         }
     }
     
-    return keys;
+    keys->scrOpen = 278;
 }
 
 //
@@ -179,7 +185,7 @@ keyboard ToolBox::initKeyboard(int anchorX,int anchorY){
 void ToolBox::initMenuSetup(int size){
     
     myGLCD.setColor(VGA_SCR_FRONT);
-    myGLCD.fillRoundRect(9,24,TFT_X-11,size);
+    myGLCD.fillRoundRect(outerBuff-1,headerSize+outerBuff-1,TFT_X-outerBuff+1,size);
 }
 void ToolBox::displayColor(pushButton* info,int values[]){
     
@@ -237,20 +243,20 @@ void ToolBox::header(){
     // Create the header
     
     myGLCD.setColor(VGA_BUTTON);
-    myGLCD.fillRect(0,0,TFT_X-1,9);
+    myGLCD.fillRect(0,0,TFT_X-1,headerSize-5);
     myGLCD.setColor(VGA_BLACK);
-    myGLCD.fillRect(0,10,TFT_X-1,13);
+    myGLCD.fillRect(0,headerSize-4,TFT_X-1,headerSize-2);
     myGLCD.setColor(VGA_BUTTON_DEAD);
-    myGLCD.drawLine(0,14,TFT_X-1,14);
+    myGLCD.drawLine(0,headerSize-1,TFT_X-1,headerSize-1);
     
     // Create the footer
     
     myGLCD.setColor(VGA_BLACK);
-    myGLCD.fillRect(0,15,TFT_X-1,19);
+    myGLCD.fillRect(0,headerSize,TFT_X-1,headerSize+3);
     myGLCD.setColor(VGA_BUTTON);
-    myGLCD.fillRect(0,20,TFT_X-1,28);
+    myGLCD.fillRect(0,headerSize+4,TFT_X-1,headerSize+footerSize-3);
     myGLCD.setColor(VGA_BLACK);
-    myGLCD.drawLine(0,29,TFT_X-1,29);
+    myGLCD.drawLine(0,headerSize+footerSize-2,TFT_X-1,headerSize+footerSize-1);
     
     // Create and place the icons in the top-left hand corner
     
@@ -277,7 +283,7 @@ void ToolBox::header(){
 
 void ToolBox::footer(int opening, int direction){
     
-    int claspOpen  = 14;
+    int claspOpen  = headerSize-1;
     int claspClose = 304;
     int callShell;
     
@@ -309,7 +315,7 @@ void ToolBox::footer(int opening, int direction){
         
     if (direction == CLOSE){
         
-        for (i=lastFootPos+1;i>=14;i-=4){
+        for (i=lastFootPos+1;i>=claspOpen;i-=4){
                 
             myGLCD.setColor(VGA_BLACK);
             myGLCD.fillRect(0,i,TFT_X-1,4+i);
@@ -346,40 +352,20 @@ void ToolBox::writeButton(pushButton* info) {
         
         TextSize = info->textSize.get(i) * 8;
         
-        if (info->font.get(i) == LARGE){
-            
-            TextSize *= 2;
-        }
+        if (info->font.get(i) == LARGE) TextSize *= 2;
         
         // Prevent a button from being larger than the screen or from having a negative or minimal value. If so, reset values to the standard button size.
         
-        if (sizeX < TextSize || sizeX >= TFT_X) {
-            
-            sizeX =  TextSize + ButtonStand[0];
-        }
-        if (sizeY < 20 || sizeY >= TFT_Y) {
-            
-            sizeY = ButtonStand[1];
-        }
+        if (sizeX < TextSize || sizeX >= TFT_X) sizeX =  TextSize + ButtonStand[0];
+        if (sizeY < 20 || sizeY >= TFT_Y) sizeY = ButtonStand[1];
         
         // Prevent the button from being placed off screen.  If so, move button back within the bounds of the screen as well as the header and footer.
         
-        if (posX < 0) {
-            
-            posX = 0;
-        }
-        else if (posX >= TFT_X) {
-            
-            posX = TFT_X - sizeX - 1;
-        }
-        if (posY <= 10) {
-            
-            posY = 11;
-        }
-        else if (posY >= TFT_Y - 12) {
-            
-            posY = TFT_Y - sizeY - 13;
-        }
+        if (posX < 0) posX = 0;
+        else if (posX >= TFT_X) posX = TFT_X - sizeX - 1;
+
+        if (posY <= 10) posY = 11;
+        else if (posY >= TFT_Y - 12) posY = TFT_Y - sizeY - 13;
         
         // Compare the size and position to the original values.  If they have been altered, reset the corresponding original array to the new values.
         
@@ -413,14 +399,8 @@ void ToolBox::writeButton(pushButton* info) {
         myGLCD.drawLine(posX + 1, posY + sizeY, posX + sizeX - 1, posY + sizeY);
         myGLCD.drawPixel(posX, posY + sizeY - 1);
         
-        if (info->font.get(i) == LARGE){
-            
-            myGLCD.setFont(BigFont);
-        }
-        else{
-            
-            myGLCD.setFont(SmallFont);
-        }
+        if (info->font.get(i) == LARGE) myGLCD.setFont(BigFont);
+        else myGLCD.setFont(SmallFont);
         
         myGLCD.setColor(VGA_AQUA);
         
@@ -470,14 +450,8 @@ void ToolBox::writeButton(pushButton* info) {
         
         // Signify the button image as ready.
         
-        if (info->state.get(i) == LIVE){
-            
-            writeButtonPress(posX,posY,sizeX,sizeY,NO_PRESS);
-        }
-        else{
-            
-            writeButtonPress(posX,posY,sizeX,sizeY,BLOCK_PRESS);
-        }
+        if (info->state.get(i) == LIVE) writeButtonPress(posX,posY,sizeX,sizeY,NO_PRESS);
+        else writeButtonPress(posX,posY,sizeX,sizeY,NO_PRESS);
     }
 }
 
@@ -496,10 +470,13 @@ void ToolBox::writeButtonPress(int posX,int posY,int sizeX,int sizeY,int Press) 
             break;
     }
  
-    myGLCD.drawLine(posX + 1, posY, posX + sizeX - 2, posY);
+    /*myGLCD.drawLine(posX + 1, posY, posX + sizeX - 2, posY);
     myGLCD.drawLine(posX + 1, posY + sizeY - 1, posX + sizeX - 2, posY + sizeY - 1);
     myGLCD.drawLine(posX, posY + 1, posX, posY + sizeY - 2);
     myGLCD.drawLine(posX + sizeX - 1, posY + 1, posX + sizeX - 1, posY + sizeY - 2);
  
-    myGLCD.drawRect(posX + 1, posY + 1, posX + sizeX - 2, posY + sizeY - 2);
+    myGLCD.drawRect(posX + 1, posY + 1, posX + sizeX - 2, posY + sizeY - 2);*/
+    
+    myGLCD.drawRect(posX+1,posY,posX+sizeX-2,posY+sizeY-1);
+    myGLCD.drawRect(posX,posY+1,posX+sizeX-1,posY+sizeY-2);
 }
