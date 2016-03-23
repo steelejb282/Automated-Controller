@@ -80,7 +80,7 @@ void loop() {
   while (1);
 }
 
-void search() {
+String search() {
 
   int sel;
   int touchX;
@@ -89,28 +89,46 @@ void search() {
   int choice = -1;
   int holdChoice = 1;
 
-  keyboard keys;
-  pushButton button;
-  database Data;
+  char tempResult[11];
 
+  String fileLoc = String("Icons/Pokemon/pkmn");
+
+  pushButton  button;
+  database    Data;
+  keyboard    keys;
+  graphic     image;
+
+  button.listMod = 4;
   Data.ID = APOKEDEX_ID;
+  Data.skipSize = button.listMod;
+  keys.anchorX = 15;
+  keys.anchorY = 132;
+
+  keys.searchBar.add(keys.anchorX - 1);
+  keys.searchBar.add(keys.anchorY);
+  keys.searchBar.add(keys.anchorX + 133);
+  keys.searchBar.add(keys.anchorY + 20);
 
   GLCD.setBackColor(VGA_SCR_BACK);
   GLCD.setFont(SmallFont);
 
-  tools.initKeyboard(&keys, &button);
+  for (i = 0; i < button.listMod; i++) {
+    button.text.add(String("-"));
+    button.sizeX.add(keys.searchBar.get(2) - keys.searchBar.get(0));
+    button.sizeY.add(20);
+    button.posX.add(keys.searchBar.get(0));
+    button.posY.add(headerSize + outerBuff + innerBuff - 1 + i * (button.sizeY.get(i) + 1));
+    button.state.add(LIVE);
+    button.font.add(SMALL);
+    button.textSize.add(1);
+    button.textPos.add(MID_LEFT);
+  }
 
-  /*for(i=0;i<4;i++){
-    output.text.add("-");
-    output.sizeX.add(keys.searchBar.get(2)-keys.searchBar.get(0));
-    output.sizeY.add(20);
-    output.posX.add(keys.searchBar.get(0));
-    output.posY.add(headerSize+outerBuff+innerBuff-1+i*output.sizeY.get(i));
-    output.state.add(LIVE);
-    output.font.add(SMALL);
-    output.textSize.add(strlen(output.text.get(i)));
-    output.textPos.add(MID_CENTER);
-    }*/
+  image.posX = keys.searchBar.get(2) + 9;
+  image.posY = button.posY.get(0) + button.listMod + 3;
+  image.scale = 2;
+
+  tools.initKeyboard(&keys, &button);
 
   tools.footer(keys.scrOpen - 5, OPEN);
   tools.initMenuSetup(keys.scrOpen + 10);
@@ -118,71 +136,59 @@ void search() {
 
   GLCD.setColor(VGA_SCR_BACK);
   GLCD.fillRoundRect(keys.searchBar.get(0), keys.searchBar.get(1), keys.searchBar.get(2), keys.searchBar.get(3));
-  for (i = 0; i < 4; i++) {
-    GLCD.fillRoundRect(keys.searchBar.get(0), 44 + i * 25, keys.searchBar.get(2), 64 + i * 25);
-    GLCD.setColor(VGA_BLACK);
-    GLCD.print(String("-"), keys.searchBar.get(0) + 4, 48 + i * 25);
-    GLCD.setColor(VGA_SCR_BACK);
-  }
-  //GLCD.fillRoundRect(keys.searchBar.get(2) + 6, 62, keys.searchBar.get(2) + 66, 122);
+  GLCD.fillRoundRect(keys.searchBar.get(2) + 6, button.posY.get(0) + button.listMod, keys.searchBar.get(2) + 76, button.posY.get(0) + button.listMod + 70);
 
   while (1) {
 
     sel = readButton(&button);
 
-    if (sel <= 3) {
+    if (sel >= button.listMod && sel <= 3 + button.listMod) {
 
       switch (sel) {
 
-        case 0:     // Enter
+        case 4:     // Enter
+          if (choice >= 0) return Data.SearchID.get(choice);
           break;
-        case 1:     // Clear
-          choice = -1;
+        case 5:     // Clear
+          choice     = -1;
           holdChoice = 1;
-          
-          Data.wordInput.clear();
-
-          if (button.state.get(4) == DEAD) {
-            for (i = 4; i < button.arrSize; i++) button.state.set(i, LIVE);
-            tools.writeButton(&button);
-          }
-
           keys.shift = 1;
-          for (i = 0; i < button.arrSize; i++) button.text.set(i, keys.textHigh.get(i));
+
+          Data.wordInput.clear();
+          Data.SearchID.clear();
+          Data.Result.clear();
+
+          if (button.state.get(4 + button.listMod) == DEAD) for (i = 4 + button.listMod; i < button.arrSize; i++) button.state.set(i, LIVE);
+          for (i = 0; i < button.listMod; i++) button.text.set(i, String("-"));
+          for (i = button.listMod; i < button.arrSize; i++) button.text.set(i, keys.textHigh.get(i - button.listMod));
           tools.writeButton(&button);
 
           GLCD.fillRoundRect(keys.searchBar.get(0), keys.searchBar.get(1), keys.searchBar.get(2), keys.searchBar.get(3));
-
-          for (i = 0; i < 4; i++) {
-            GLCD.fillRoundRect(keys.searchBar.get(0), 44 + i * 25, keys.searchBar.get(2), 64 + i * 25);
-            GLCD.setColor(VGA_BLACK);
-            GLCD.print(String("-"), keys.searchBar.get(0) + 4, 48 + i * 25);
-            GLCD.setColor(VGA_SCR_BACK);
-          }
+          GLCD.fillRoundRect(keys.searchBar.get(2) + 6, button.posY.get(0) + button.listMod, keys.searchBar.get(2) + 76, button.posY.get(0) + button.listMod + 70);
           break;
-        case 2:     // Shift
+        case 6:     // Shift
           keys.shift = !keys.shift;
 
           switch (keys.shift) {
             case 0:
-              for (i = 0; i < button.arrSize; i++) button.text.set(i, keys.textLow.get(i));
+              for (i = button.listMod; i < button.arrSize; i++) button.text.set(i, keys.textLow.get(i - button.listMod));
               break;
             case 1:
-              for (i = 0; i < button.arrSize; i++) button.text.set(i, keys.textHigh.get(i));
+              for (i = button.listMod; i < button.arrSize; i++) button.text.set(i, keys.textHigh.get(i - button.listMod));
               break;
           }
 
           tools.writeButton(&button);
           break;
-        case 3:     // Delete
+        case 7:     // Delete
           choice = -1;
           holdChoice = 1;
-          
+
           if (Data.wordInput.size() > 0) {
             Data.wordInput.pop();
 
-            if (button.state.get(4) == DEAD) {
-              for (i = 4; i < button.arrSize; i++) button.state.set(i, LIVE);
+            if (button.state.get(4 + button.listMod) == DEAD) {
+              for (i = 4 + button.listMod; i < button.arrSize; i++) button.state.set(i, LIVE);
               tools.writeButton(&button);
             }
 
@@ -192,24 +198,20 @@ void search() {
             GLCD.setColor(VGA_SCR_BACK);
 
             sd.search(&Data);
-
-            for (i = 0; i < 4; i++) {
-              GLCD.fillRoundRect(keys.searchBar.get(0), 44 + i * 25, keys.searchBar.get(2), 64 + i * 25);
-              GLCD.setColor(VGA_BLACK);
-              if (i >= Data.Result.size()) GLCD.print(String("-"), keys.searchBar.get(0) + 4, 48 + i * 25);
-              else GLCD.print(Data.Result.get(i), keys.searchBar.get(0) + 4, 48 + i * 25);
-              GLCD.setColor(VGA_SCR_BACK);
-            }
+            for (i = 0; i < button.listMod; i++) button.text.set(i, String("-"));
+            for (i = 0; i < Data.Result.size(); i++) button.text.set(i, Data.Result.get(i));
+            tools.writeButton(&button);
           }
           if (Data.wordInput.size() == 0) {
             keys.shift = 1;
-            for (i = 0; i < button.arrSize; i++) button.text.set(i, keys.textHigh.get(i));
+            for (i = button.listMod; i < button.arrSize; i++) button.text.set(i, keys.textHigh.get(i - button.listMod));
             tools.writeButton(&button);
           }
+          GLCD.fillRoundRect(keys.searchBar.get(2) + 6, button.posY.get(0) + button.listMod, keys.searchBar.get(2) + 76, button.posY.get(0) + button.listMod + 70);
           break;
       }
     }
-    else {
+    else if (sel >= button.listMod + 3) {
 
       if (Data.wordInput.size() < 11) {
         choice = -1;
@@ -219,8 +221,7 @@ void search() {
 
         if (keys.shift) {
           keys.shift = 0;
-          for (i = 0; i < button.arrSize; i++) button.text.set(i, keys.textLow.get(i));
-          tools.writeButton(&button);
+          for (i = button.listMod; i < button.arrSize; i++) button.text.set(i, keys.textLow.get(i - button.listMod));
         }
 
         GLCD.fillRoundRect(keys.searchBar.get(0), keys.searchBar.get(1), keys.searchBar.get(2), keys.searchBar.get(3));
@@ -229,64 +230,29 @@ void search() {
         GLCD.setColor(VGA_SCR_BACK);
 
         sd.search(&Data);
+        for (i = 0; i < button.listMod; i++) button.text.set(i, String("-"));
+        for (i = 0; i < Data.Result.size(); i++) button.text.set(i, Data.Result.get(i));
+      }
+      if (Data.wordInput.size() == 11) for (i = 4 + button.listMod; i < button.arrSize; i++) button.state.set(i, DEAD);
 
-        for (i = 0; i < 4; i++) {
-          GLCD.fillRoundRect(keys.searchBar.get(0), 44 + i * 25, keys.searchBar.get(2), 64 + i * 25);
-          GLCD.setColor(VGA_BLACK);
-          if (i >= Data.Result.size()) GLCD.print(String("-"), keys.searchBar.get(0) + 4, 48 + i * 25);
-          else GLCD.print(Data.Result.get(i), keys.searchBar.get(0) + 4, 48 + i * 25);
-          GLCD.setColor(VGA_SCR_BACK);
-        }
-      }
-      if (Data.wordInput.size() == 11) {
-        for (i = 4; i < button.arrSize; i++) button.state.set(i, DEAD);
-        tools.writeButton(&button);
-      }
+      tools.writeButton(&button);
+      GLCD.fillRoundRect(keys.searchBar.get(2) + 6, button.posY.get(0) + button.listMod, keys.searchBar.get(2) + 76, button.posY.get(0) + button.listMod + 70);
+    }
+    else {
+      choice = sel;
+      holdChoice = 1;
     }
 
-    if (myTouch.dataAvailable()) {
+    if (holdChoice) {
+      holdChoice = 0;
 
-      myTouch.read();
+      for (i = 0; i < button.listMod; i++) tools.writeButtonPress(button.posX.get(i), button.posY.get(i), button.sizeX.get(i), button.sizeY.get(i), NO_PRESS);
 
-      touchX = myTouch.getX();
-      touchY = myTouch.getY();
+      if (choice >= 0 && choice < Data.Result.size()) {
+        tools.writeButtonPress(button.posX.get(choice), button.posY.get(choice), button.sizeX.get(choice), button.sizeY.get(choice), PRESS);
 
-      if (touchX >= keys.searchBar.get(0) && touchX <= keys.searchBar.get(2)) {
-        if (touchY >= headerSize + outerBuff + innerBuff - 1 && touchY <= headerSize + outerBuff + innerBuff + 94) {
-
-          for (i = 0; i < 4; i++) {
-            GLCD.fillRoundRect(keys.searchBar.get(0), 44 + i * 25, keys.searchBar.get(2), 64 + i * 25);
-            GLCD.setColor(VGA_BLACK);
-            if (i >= Data.Result.size()) GLCD.print(String("-"), keys.searchBar.get(0) + 4, 48 + i * 25);
-            else GLCD.print(Data.Result.get(i), keys.searchBar.get(0) + 4, 48 + i * 25);
-            GLCD.setColor(VGA_SCR_BACK);
-          }
-          
-          if (touchY <= headerSize + outerBuff + innerBuff + 19) {
-            choice = 0;
-            holdChoice = 1;
-          }
-          else if (touchY >= headerSize + outerBuff + innerBuff + 24 && touchY <= headerSize + outerBuff + innerBuff + 44) {
-            choice = 1;
-            holdChoice = 1;
-          }
-          else if (touchY >= headerSize + outerBuff + innerBuff + 49 && touchY <= headerSize + outerBuff + innerBuff + 69) {
-            choice = 2;
-            holdChoice = 1;
-          }
-          else if (touchY >= headerSize + outerBuff + innerBuff + 74) {
-            choice = 3;
-            holdChoice = 1;
-          }
-        }
-      }
-    }
-
-    if (holdChoice){
-
-      if (choice = -1) GLCD.fillRoundRect(keys.searchBar.get(2) + 6, 62, keys.searchBar.get(2) + 66, 122);
-      else{
-        
+        image.file = fileLoc + Data.SearchID.get(choice) + String(".txt");
+        tools.imageWrite(&image);
       }
     }
   }
@@ -306,7 +272,7 @@ void initMenu() {
   //mainMenu();
   search();
 }
-void mainMenu() {
+/*void mainMenu() {
 
   int sel;
 
@@ -379,9 +345,9 @@ void mainMenu() {
         break;
     }
   }
-}
+  }
 
-void routineMenu() {
+  void routineMenu() {
 
   mainMenu();
 
@@ -400,9 +366,9 @@ void routineMenu() {
   //   EV Train
   //   Soft Reset
 
-}
+  }
 
-void toolMenu() {
+  void toolMenu() {
 
   int sel;
 
@@ -476,9 +442,9 @@ void toolMenu() {
         break;
     }
   }
-}
+  }
 
-void settingMenu() {
+  void settingMenu() {
 
   int sel;
 
@@ -553,9 +519,9 @@ void settingMenu() {
         break;
     }
   }
-}
+  }
 
-void gameMenu(int call) {
+  void gameMenu(int call) {
 
   // The game menu will be accessed by the Routines call (0), the Account Manager (1), the Game Manager (2), and the Routine Manager (3)
 
@@ -781,16 +747,16 @@ void gameMenu(int call) {
       }
     }
   }
-}
-void routineManageMenu() {
+  }
+  void routineManageMenu() {
 
 
-}
-void timeDateMenu() {
+  }
+  void timeDateMenu() {
 
 
-}
-void appearanceMenu() {
+  }
+  void appearanceMenu() {
 
   int temp;
 
@@ -905,13 +871,13 @@ void appearanceMenu() {
       }
     }
   }
-}
+  }
 
-void passwordManageMenu() {
+  void passwordManageMenu() {
 
 
-}
-
+  }
+*/
 
 /*
   //
