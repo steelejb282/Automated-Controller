@@ -1,14 +1,15 @@
 Database					Last Update					Game Era
 
-Pokedex					7 Mar 2016					ORAS
-Ability					7 Mar 2016					ORAS
-Attack					7 Mae 2016					ORAS
-Item						7 Mar 2016					ORAS
-Nature					7 Mar 2016					ORAS
-APokedex				7 Mar 2016					ORAS
+Pokedex					07 Mar 2016					ORAS
+Ability					07 Mar 2016					ORAS
+Attack					07 Mar 2016					ORAS
+Item						23 Mar 2016					ORAS
+Nature					07 Mar 2016					ORAS
+APokedex				07 Mar 2016					ORAS
+Ball						23 Mar 2016					ORAS
 
 
-7 Mar 2016
+07 Mar 2016
 
 -Added APokédex, a database similar to Pokédex, but alphabetized by name for ease of organization.
 	It was deemed as necessary to have both an alphabetized and an ordered Pokédex database, as each 	
@@ -18,3 +19,9 @@ APokedex				7 Mar 2016					ORAS
 -Added a neutral option to both Pokédex and APokédex.
 -Alphabetized Ability, Attack, Item, and Nature.  These databases are less ordered, and so alphabetization was
 	for the best.
+
+
+23 Mar 2016
+
+-Converted the primary keys of the Item database from hexadecimal to decimal.  Note that this will probably need 	to be done for every other database, as well.
+-Added Ball, a database to manage the possible housing balls.

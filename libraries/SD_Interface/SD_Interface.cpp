@@ -153,6 +153,99 @@ void SD_Interface::GameList(int list[],int size,int type){
 // Functions designed to read and interpret the stored databases
 //
 
+void SD_Interface::initDatabase(database* Data){
+    
+    switch (Data->ID) {
+            
+        case POKEDEX_ID:
+            // Storage Information
+            Data->fileName      = POKEDEX;
+            Data->imgFileLoc    = String("Icons/Pokemon/");
+            // Database Information
+            Data->sizeWord      = POKEDEX_NAME;
+            Data->sizeDB        = POKEDEX_SIZE;
+            // Modifiers
+            Data->IDmod         = 3;                        // Size of the identifier
+            Data->image         = 1;                        // Capable of image processing
+            Data->nameMod       = 0;                        // Word size modification
+            Data->startMod      = 4;                        // Starting position of the word
+        case ABILITY_ID:
+            // Storage Information
+            Data->fileName      = ABILITY;
+            // Database Information
+            Data->sizeWord      = ABILITY_NAME;
+            Data->sizeDB        = ABILITY_SIZE;
+            // Modifiers
+            Data->IDmod         = 2;                        // Size of the identifier
+            Data->image         = 0;                        // Capable of image processing
+            Data->nameMod       = 0;                        // Word size modification
+            Data->startMod      = 3;                        // Starting position of the word
+            break;
+        case ATTACK_ID:
+            // Storage Information
+            Data->fileName      = ATTACK;
+            // Database Information
+            Data->sizeWord      = ATTACK_NAME;
+            Data->sizeDB        = ATTACK_SIZE;
+            // Modifiers
+            Data->IDmod         = 2;                        // Size of the identifier
+            Data->image         = 0;                        // Capable of image processing
+            Data->nameMod       = 1;                        // Word size modification
+            Data->startMod      = 3;                        // Starting position of the word
+            break;
+        case ITEM_ID:
+            // Storage Information
+            Data->fileName      = ITEM;
+            Data->imgFileLoc    = String("Icons/Items/");
+            // Database Information
+            Data->sizeWord      = ITEM_NAME;
+            Data->sizeDB        = ITEM_SIZE;
+            // Modifiers
+            Data->IDmod         = 3;                        // Size of the identifier
+            Data->image         = 1;                        // Capable of image processing
+            Data->nameMod       = 1;                        // Word size modification
+            Data->startMod      = 4;                        // Starting position of the word
+            break;
+        case NATURE_ID:
+            // Storage Information
+            Data->fileName      = NATURE;
+            // Database Information
+            Data->sizeWord      = NATURE_NAME;
+            Data->sizeDB        = NATURE_SIZE;
+            // Modifiers
+            Data->IDmod         = 2;                        // Size of the identifier
+            Data->image         = 0;                        // Capable of image processing
+            Data->nameMod       = 0;                        // Word size modification
+            Data->startMod      = 3;                        // Starting position of the word
+            break;
+        case BALL_ID:
+            // Storage Information
+            Data->fileName      = BALL;
+            Data->imgFileLoc    = String("Icons/Balls/");
+            // Database Information
+            Data->sizeWord      = BALL_NAME;
+            Data->sizeDB        = BALL_SIZE;
+            // Modifiers
+            Data->IDmod         = 2;                        // Size of the identifier
+            Data->image         = 1;                        // Capable of image processing
+            Data->nameMod       = 0;                        // Word size modification
+            Data->startMod      = 3;                        // Starting position of the word
+        default:    // APokedex_ID
+            // Storage Information
+            Data->fileName      = APOKEDEX;
+            Data->imgFileLoc    = String("Icons/Pokemon/");
+            // Database Information
+            Data->sizeWord      = APOKEDEX_NAME;
+            Data->sizeDB        = APOKEDEX_SIZE;
+            // Modifiers
+            Data->IDmod         = 3;                        // Size of the identifier
+            Data->image         = 1;                        // Capable of image processing
+            Data->nameMod       = 0;                        // Word size modification
+            Data->startMod      = 4;                        // Starting position of the word
+            break;
+    }
+}
+
 void SD_Interface::search(database* Data) {
     
     //
@@ -171,61 +264,22 @@ void SD_Interface::search(database* Data) {
     
     process sort;
     
-    int     nameMod,            // Modifier to search name - some databases are buffered in name size
-            wordSize;           // The size of the resulting word in the search
+    int     wordSize;           // The size of the resulting word in the search
+    
+    int     IDmod       = Data->IDmod;      // Modifier to the size of of the identification code
+    int     nameMod     = Data->nameMod;
+    int     start       = Data->startMod;   // Start position of the word in the database
     
     int     Cap         = 1;    // A marker for capitalizing the results in appropriate locations
     int     compCnt     = 0;    // Counter for comparing query to database
-    int     IDmod       = 2;    // Modifier to the size of of the identification code
-    int     start       = 3;    // Start position of the word in the database
+    int     skip        = Data->skipSize;
     
     String tempInput    = String("");   // Used to convert the input string list into a char array
     String tempID       = String("");   // Used to convert the search results to a string
     String tempResult   = String("");   // Used to concert the search id to a string
     
-    // Use the database ID to open the database, and retrieve sizes, and pertinate modifiers
-    switch (Data->ID) {
-            
-        case POKEDEX_ID:
-            myFile = SD.open(POKEDEX, FILE_READ);
-            sort.sizeWord = POKEDEX_NAME;
-            sort.sizeDB   = POKEDEX_SIZE;
-            start   = 4;                                // Starting position of the word
-            nameMod = 0;                                // Word size modification
-            IDmod   = 3;                                // Size of the identifier
-        case ABILITY_ID:
-            myFile = SD.open(ABILITY, FILE_READ);
-            sort.sizeWord = ABILITY_NAME;
-            sort.sizeDB   = ABILITY_SIZE;
-            nameMod = 0;                                // Word size modification
-            break;
-        case ATTACK_ID:
-            myFile = SD.open(ATTACK, FILE_READ);
-            sort.sizeWord = ATTACK_NAME;
-            sort.sizeDB   = ATTACK_SIZE;
-            nameMod = 1;                                // Word size modification
-            break;
-        case ITEM_ID:
-            myFile = SD.open(ITEM, FILE_READ);
-            sort.sizeWord = ITEM_NAME;
-            sort.sizeDB   = ITEM_SIZE;
-            nameMod = 1;                                // Word size modification
-            break;
-        case NATURE_ID:
-            myFile = SD.open(NATURE, FILE_READ);
-            sort.sizeWord = NATURE_NAME;
-            sort.sizeDB   = NATURE_SIZE;
-            nameMod = 0;                                // Word size modification
-            break;
-        default:    // APokedex_ID
-            myFile = SD.open(APOKEDEX, FILE_READ);
-            sort.sizeWord = APOKEDEX_NAME;
-            sort.sizeDB   = APOKEDEX_SIZE;
-            start   = 4;                                // Starting position of the word
-            nameMod = 0;                                // Word size modification
-            IDmod   = 3;                                // Size of the identifier
-            break;
-    }
+    sort.sizeWord       = Data->sizeWord;
+    sort.sizeDB         = Data->sizeDB;
     
     // Create a temporary storage array for each entry into the database
     char  SD_IMPORT[sort.sizeDB];
@@ -248,6 +302,8 @@ void SD_Interface::search(database* Data) {
         sort.lineSearch.add(String(tempInput[i]));
     }
     
+    myFile = SD.open(Data->fileName,FILE_READ);
+    
     if (myFile) {
         
         while (myFile.available()) {
@@ -268,6 +324,7 @@ void SD_Interface::search(database* Data) {
             //
             if (compCnt == sort.inWordSize) {
                 
+                skip--;
                 // Retreive the size of the word stored in the given line.  The stored size will need to be converted from hexadecimal characters to decimal integers.  As 'A'-'F' follow the decimal values, a modifier of 10 will need to be added to the result for accuracy
                 
                 // nameMod is included as some databases have altered word sizes for the sake of ease in storage
@@ -298,6 +355,8 @@ void SD_Interface::search(database* Data) {
                 for (i = 0; i < wordSize; i++) tempResult += String(sort.wordStorage.get(i));
                 Data->Result.add(tempResult);
             }
+            
+            if (skip == 0) break;
             
             // Reset the accounting variables and storage spaces for the next round of searching, and
             // move to the next line
@@ -331,7 +390,7 @@ void SD_Interface::search(database* Data) {
 // ***
 // ***
 // ***    // Hatch Total Read/Write
-    
+
     //
     // Database Manipulation
     //
@@ -349,11 +408,11 @@ void SD_Interface::search(database* Data) {
     // Parent Directory
     // Box Manipulation
     // Image Retrieval
-    
+
     //
     // Interface Retrievals
     //
-    
+
     //void pokemonInfoRead(int Num,char* Pokemon[],char* PrimeAbil[],char* SecondAbil[],char* HiddenAbil
 
 void SD_Interface::pokedexRead(char* Name,int NumSel) {

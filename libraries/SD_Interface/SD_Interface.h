@@ -24,20 +24,23 @@
 #define ATTACK_ID       3
 #define ITEM_ID         4
 #define NATURE_ID       5
+#define BALL_ID         6
 
-#define POKEDEX         "Database/Pokedex.txt"
-#define APOKEDEX        "Database/APokedex.txt"
-#define ABILITY         "Database/Ability.txt"
-#define ATTACK          "Database/Attack.txt"
-#define ITEM            "Database/Item.txt"
-#define NATURE          "Database/Nature.txt"
+#define POKEDEX         String("Database/Pokedex.txt")
+#define APOKEDEX        String("Database/APokedex.txt")
+#define ABILITY         String("Database/Ability.txt")
+#define ATTACK          String("Database/Attack.txt")
+#define ITEM            String("Database/Item.txt")
+#define NATURE          String("Database/Nature.txt")
+#define BALL            String("Database/Ball.txt")
 
 #define POKEDEX_SIZE    23
 #define APOKEDEX_SIZE   15
 #define ABILITY_SIZE    17
 #define ATTACK_SIZE     19
-#define ITEM_SIZE       20
+#define ITEM_SIZE       21
 #define NATURE_SIZE     12
+#define BALL_SIZE       16
 
 #define POKEDEX_NAME    11
 #define APOKEDEX_NAME   11
@@ -45,17 +48,26 @@
 #define ATTACK_NAME     16
 #define ITEM_NAME       16
 #define NATURE_NAME     7
+#define BALL_NAME       12
 
 typedef struct{
+    // Storage Information
     int                 ID;                 // Database identification
+    String              fileName;
+    String              imgFileLoc;
+    // Database Information
+    int                 sizeWord;
+    int                 sizeDB;
+    // Modifiers
+    int                 IDmod       = 2;
+    int                 image       = 0;
+    int                 nameMod     = 0;
+    int                 skipSize    = 4;
+    int                 startMod    = 3;
+    // Search and Results
     int                 outListSize;        // The final size of the list
-    
     LinkedList<String>  Result;
     LinkedList<String>  SearchID;
-    
-    //String              Result[4];
-    //String              SearchID[4];
-    
     LinkedList<String>  wordInput;          // The user provided query
     
 }database;
@@ -71,23 +83,6 @@ typedef struct{
     
 }process;
 
-typedef struct {
-    int pxlX;     // Number of pixels in the x-direction
-    int pxlY;     // Number of pixels in the y-direction
-    int posX;     // Position of the left side of the image
-    int posY;     // Position of the top side of the image
-    int sizeX;    // Base horizontal size of the image
-    int sizeY;    // Base vertical size of the image
-    int cnt;
-    int scale = 1;
-    int pixCol;
-    
-    unsigned int backColor = VGA_SCR_BACK;
-    
-    String location;
-    String num;
-    String file;
-} graphic;
 
 class SD_Interface{
     
@@ -112,6 +107,7 @@ public:
     // Database Manipulation
     //
     
+    void        initDatabase(database* Data);
     void        search(database* Data);
     
     void        pokedexRead(char* Name,int NumSel = 1);
@@ -134,10 +130,10 @@ public:
     void        abilityWrite(char* Ability,int type);
     int         infoWrite(int type);
     
-    char KeyLayout[40] = {  '1','2','3','4','5','6','7','8','9','0',
-                            'A','B','C','D','E','F','G','H','I','J',
-                            'K','L','M','N','O','P','Q','R','S','T',
-                            'U','V','W','X','Y','Z','.','\'','-',' '};
+    //char KeyLayout[40] = {  '1','2','3','4','5','6','7','8','9','0',
+    //                        'A','B','C','D','E','F','G','H','I','J',
+    //                        'K','L','M','N','O','P','Q','R','S','T',
+    //                        'U','V','W','X','Y','Z','.','\'','-',' '};
     
 private:
     

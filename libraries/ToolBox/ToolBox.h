@@ -15,6 +15,9 @@
 #include <memorysaver.h>
 #include <avr/pgmspace.h>
 
+#include <Wire.h>
+#include "Sodaq_DS3231.h"
+
 #define RS              38
 #define WR              39
 #define CS              40
@@ -63,23 +66,8 @@
 #define VGA_SHELL_6         0x9CC0      // Color for the Type 6 Shell
 
 typedef struct{
-    
-    LinkedList<char*>   text;
-    LinkedList<int>     posX;
-    LinkedList<int>     posY;
-    LinkedList<int>     sizeX;
-    LinkedList<int>     sizeY;
-    LinkedList<int>     state;
-    LinkedList<int>     font;
-    LinkedList<int>     textSize;
-    LinkedList<int>     textPos;
-    
-    byte                arrSize;
-} pushButton;
-
-typedef struct{
-    LinkedList<char*>   textLow;
-    LinkedList<char*>   textHigh;
+    LinkedList<String>  textLow;
+    LinkedList<String>  textHigh;
     
     LinkedList<int>     searchBar;
     byte                holdShift;
@@ -93,6 +81,42 @@ typedef struct{
     int                 scrOpen;
 } keyboard;
 
+typedef struct {
+    int posX;                                   // Position of the left side of the image
+    int posY;                                   // Position of the top side of the image
+    int scale = 1;
+    
+    unsigned int backColor = VGA_SCR_BACK;      // The transparentcy color
+
+    String file;
+} graphic;
+
+typedef struct{
+    
+    LinkedList<String>  text;
+    LinkedList<int>     posX;
+    LinkedList<int>     posY;
+    LinkedList<int>     sizeX;
+    LinkedList<int>     sizeY;
+    LinkedList<int>     state;
+    LinkedList<int>     font;
+    LinkedList<int>     textSize;
+    LinkedList<int>     textPos;
+    
+    byte                arrSize;
+    int                 listMod = 0;
+    int                 frame = 0;
+} pushButton;
+
+typedef struct{
+    String              text;
+    
+    unsigned int        foreColor;
+    unsigned int        backColor;
+    
+    byte                holdTitle;
+} headerInfo;
+
 extern uint8_t SmallFont[];
 extern uint8_t BigFont[];
 
@@ -103,7 +127,7 @@ public:
     ToolBox();
     int         getX();
     int         getY();
-    void        clearButtonList();
+    void        clearButtonList(pushButton* button);
     void        initKeyboard(keyboard* keys,pushButton* button);
     
     // Menu Interfacing
@@ -112,14 +136,47 @@ public:
     void        displayColor(pushButton* info,int values[]);
     
     // Header and Transition control
-    void        header();
+    void        initHeader(bool* startup);
     void        footer(int opening,int direction=CLOSE);
     
-    // Button Control
+    // Image and Screen Control
     void        writeButton(pushButton* info);
     void        writeButtonPress(int posX,int posY,int sizeX,int sizeY,int Press);
+    void        imageWrite(graphic* icon);
+    
+    byte hex2bin[16][4] = {
+        {0, 0, 0, 0},
+        {0, 0, 0, 1},
+        {0, 0, 1, 0},
+        {0, 0, 1, 1},
+        {0, 1, 0, 0},
+        {0, 1, 0, 1},
+        {0, 1, 1, 0},
+        {0, 1, 1, 1},
+        {1, 0, 0, 0},
+        {1, 0, 0, 1},
+        {1, 0, 1, 0},
+        {1, 0, 1, 1},
+        {1, 1, 0, 0},
+        {1, 1, 0, 1},
+        {1, 1, 1, 0},
+        {1, 1, 1, 1},
+    };
+    
+    byte bin2dec[8] = {
+        128,
+        64,
+        32,
+        16,
+        8,
+        4,
+        2,
+        1
+    };
     
 private:
+    
+
     
     int TFT_X;
     int TFT_Y;
